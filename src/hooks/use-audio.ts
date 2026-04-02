@@ -122,6 +122,10 @@ export function useAudio(type: NoiseType, volume: number) {
     }
 
     const ctx = new AudioContext();
+    // iOS Safari requires resume after user gesture
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
     ctxRef.current = ctx;
     const gain = ctx.createGain();
     gain.gain.value = volume * 0.5;

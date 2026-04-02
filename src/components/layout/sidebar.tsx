@@ -65,7 +65,7 @@ export function Sidebar() {
               <Timer size={14} className="text-white" />
             </div>
             <span className="font-semibold text-[var(--fg)]" style={{ fontFamily: 'var(--font-heading)' }}>
-              Lucy App
+              Pomodoro
             </span>
           </div>
           <button

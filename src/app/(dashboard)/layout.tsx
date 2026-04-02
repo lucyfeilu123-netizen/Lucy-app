@@ -29,7 +29,7 @@ export default function DashboardLayout({
             <Menu size={20} />
           </button>
           <span className="ml-2 font-semibold text-[var(--fg)]" style={{ fontFamily: 'var(--font-heading)' }}>
-            Lucy App
+            Pomodoro
           </span>
         </div>
 

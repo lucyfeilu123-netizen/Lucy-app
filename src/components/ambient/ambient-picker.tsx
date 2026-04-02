@@ -51,11 +51,20 @@ export function AmbientPicker() {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute bottom-full left-0 mb-2 z-50 w-64 rounded-xl border border-[var(--border)] bg-[var(--bg-raised)] p-4 shadow-xl">
+          <div className="fixed inset-0 z-[45]" onClick={() => setOpen(false)} />
+          <div className="absolute bottom-full left-0 mb-2 z-[46] w-64 rounded-xl border border-[var(--border)] bg-[var(--bg-raised)] p-4 shadow-xl">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--fg-quieter)]">
+                Ambience
+              </h4>
+              <button onClick={() => setOpen(false)} className="text-[var(--fg-quieter)] hover:text-[var(--fg)]">
+                <X size={14} />
+              </button>
+            </div>
+
             {/* Theme selection */}
             <div className="mb-4">
-              <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--fg-quieter)] mb-2">
+              <h4 className="text-xs font-medium text-[var(--fg-quieter)] mb-2">
                 Background
               </h4>
               <div className="grid grid-cols-3 gap-1.5">
@@ -79,7 +88,7 @@ export function AmbientPicker() {
 
             {/* White noise selection */}
             <div className="mb-4">
-              <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--fg-quieter)] mb-2">
+              <h4 className="text-xs font-medium text-[var(--fg-quieter)] mb-2">
                 White Noise
               </h4>
               <div className="flex flex-wrap gap-1.5">

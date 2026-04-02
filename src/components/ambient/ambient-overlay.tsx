@@ -26,5 +26,9 @@ export function AmbientOverlay() {
   if (ambientTheme === 'none') return null;
 
   const Scene = scenes[ambientTheme];
-  return <Scene active />;
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <Scene active />
+    </div>
+  );
 }

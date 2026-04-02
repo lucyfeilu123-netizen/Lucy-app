@@ -14,7 +14,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Lucy App — Focus & Flow",
+  title: "Pomodoro — Focus & Flow",
   description: "Pomodoro timer and task manager for focused productivity",
 };
 
@@ -25,6 +25,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Pomodoro" />
+        <meta name="theme-color" content="#141414" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+      </head>
       <body className={`${spaceGrotesk.variable} ${dmSans.variable} font-sans antialiased`}>
         <ThemeProvider>
           {children}

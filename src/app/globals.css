@@ -161,3 +161,23 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--fg-quieter);
 }
+
+/* PWA / Mobile app feel */
+html, body {
+  overflow: hidden;
+  height: 100dvh;
+  position: fixed;
+  width: 100%;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide Safari UI elements */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
