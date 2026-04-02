@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Task, Subtask, Priority, SmartViewType } from '@/types/task';
-import { generateId, isToday, isOverdue, isFuture, getNextRecurringDate } from '@/lib/utils';
+import { generateId, isToday, isOverdue, isFuture, isTomorrow, isThisWeek, isNextSevenDays, getNextRecurringDate } from '@/lib/utils';
 import { PRIORITY_CONFIG } from '@/lib/constants';
 
 interface TaskStore {
@@ -53,12 +53,26 @@ function filterByView(tasks: Task[], view: SmartViewType): Task[] {
       return tasks.filter(t => !t.done && !t.listId && !isFuture(t.dueDate));
     case 'today':
       return tasks.filter(t => !t.done && (isToday(t.dueDate) || isOverdue(t.dueDate)));
+    case 'overdue':
+      return tasks.filter(t => !t.done && isOverdue(t.dueDate));
+    case 'tomorrow':
+      return tasks.filter(t => !t.done && isTomorrow(t.dueDate));
+    case 'thisWeek':
+      return tasks.filter(t => !t.done && isThisWeek(t.dueDate));
+    case 'next7Days':
+      return tasks.filter(t => !t.done && isNextSevenDays(t.dueDate));
     case 'scheduled':
       return tasks.filter(t => !t.done && t.dueDate && isFuture(t.dueDate));
+    case 'planned':
+      return tasks.filter(t => !t.done && t.dueDate);
     case 'flagged':
       return tasks.filter(t => !t.done && t.flagged);
     case 'all':
       return tasks.filter(t => !t.done);
+    case 'someday':
+      return tasks.filter(t => !t.done && !t.dueDate && !t.listId);
+    case 'events':
+      return tasks.filter(t => !t.done && t.isEvent);
     case 'completed':
       return tasks.filter(t => t.done);
     default:
@@ -97,6 +111,9 @@ export const useTaskStore = create<TaskStore>()(
           tags: partial.tags || [],
           listId: partial.listId || null,
           recurring: partial.recurring || null,
+          isEvent: partial.isEvent || false,
+          eventStartTime: partial.eventStartTime || null,
+          eventEndTime: partial.eventEndTime || null,
           createdAt: new Date().toISOString(),
         };
         set((state) => ({ tasks: [task, ...state.tasks] }));

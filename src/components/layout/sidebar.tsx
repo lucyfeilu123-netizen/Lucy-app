@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Inbox, CalendarDays, CalendarClock, Star, ListTodo, CheckCircle2,
-  Timer, Plus, Menu, X
+  Timer, Plus, Menu, X,
+  AlertCircle, CalendarPlus, CalendarRange, Calendar, CalendarCheck, Cloud, CalendarHeart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTaskStore } from '@/stores/task-store';
@@ -15,17 +17,72 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { AmbientPicker } from '@/components/ambient/ambient-picker';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Badge } from '@/components/ui/badge';
+import { ListCreator } from '@/components/lists/list-creator';
 import { formatTime } from '@/lib/utils';
 import { SmartViewType } from '@/types/task';
 
-const smartViews = [
+const mainViews = [
   { id: 'inbox' as SmartViewType, label: 'Inbox', icon: Inbox, href: '/inbox' },
   { id: 'today' as SmartViewType, label: 'Today', icon: CalendarDays, href: '/today' },
+  { id: 'overdue' as SmartViewType, label: 'Overdue', icon: AlertCircle, href: '/overdue' },
+  { id: 'tomorrow' as SmartViewType, label: 'Tomorrow', icon: CalendarPlus, href: '/tomorrow' },
+];
+
+const scheduleViews = [
+  { id: 'thisWeek' as SmartViewType, label: 'This Week', icon: CalendarRange, href: '/this-week' },
+  { id: 'next7Days' as SmartViewType, label: 'Next 7 Days', icon: Calendar, href: '/next-7-days' },
   { id: 'scheduled' as SmartViewType, label: 'Scheduled', icon: CalendarClock, href: '/scheduled' },
+  { id: 'planned' as SmartViewType, label: 'Planned', icon: CalendarCheck, href: '/planned' },
+];
+
+const moreViews = [
   { id: 'flagged' as SmartViewType, label: 'Flagged', icon: Star, href: '/flagged' },
   { id: 'all' as SmartViewType, label: 'All Tasks', icon: ListTodo, href: '/all' },
+  { id: 'someday' as SmartViewType, label: 'Someday', icon: Cloud, href: '/someday' },
+  { id: 'events' as SmartViewType, label: 'Events', icon: CalendarHeart, href: '/events' },
   { id: 'completed' as SmartViewType, label: 'Completed', icon: CheckCircle2, href: '/completed' },
 ];
+
+function NavSection({ views, label, pathname, getTaskCount, onNavigate }: {
+  views: typeof mainViews;
+  label?: string;
+  pathname: string;
+  getTaskCount: (view: SmartViewType) => number;
+  onNavigate: () => void;
+}) {
+  return (
+    <div>
+      {label && (
+        <span className="text-[10px] font-medium uppercase tracking-wider text-[var(--fg-quieter)] px-3 mb-1 block mt-4">
+          {label}
+        </span>
+      )}
+      <div className="space-y-0.5">
+        {views.map((view) => {
+          const isActive = pathname === view.href;
+          const count = getTaskCount(view.id);
+          return (
+            <Link
+              key={view.id}
+              href={view.href}
+              onClick={onNavigate}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                isActive
+                  ? 'bg-[var(--bg-quiet)] text-[var(--fg)]'
+                  : 'text-[var(--fg-quiet)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)]'
+              )}
+            >
+              <view.icon size={18} />
+              <span className="flex-1">{view.label}</span>
+              {count > 0 && <Badge variant="count">{count}</Badge>}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -35,6 +92,7 @@ export function Sidebar() {
   const mobileMenuOpen = useUIStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useUIStore((s) => s.setMobileMenuOpen);
   const { remainingSeconds, status, mode } = useTimerStore();
+  const [listDialogOpen, setListDialogOpen] = useState(false);
 
   const getListTaskCount = (listId: string) =>
     tasks.filter(t => !t.done && t.listId === listId).length;
@@ -78,31 +136,9 @@ export function Sidebar() {
 
         {/* Smart Views */}
         <nav className="flex-1 overflow-y-auto px-2 py-3">
-          <div className="space-y-0.5">
-            {smartViews.map((view) => {
-              const isActive = pathname === view.href;
-              const count = getTaskCount(view.id);
-              return (
-                <Link
-                  key={view.id}
-                  href={view.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                    isActive
-                      ? 'bg-[var(--bg-quiet)] text-[var(--fg)]'
-                      : 'text-[var(--fg-quiet)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)]'
-                  )}
-                >
-                  <view.icon size={18} />
-                  <span className="flex-1">{view.label}</span>
-                  {count > 0 && (
-                    <Badge variant="count">{count}</Badge>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+          <NavSection views={mainViews} pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} />
+          <NavSection views={scheduleViews} label="Schedule" pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} />
+          <NavSection views={moreViews} label="More" pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} />
 
           {/* Mini Timer */}
           <div className="mt-4 mx-1">
@@ -139,6 +175,7 @@ export function Sidebar() {
                 Lists
               </span>
               <button
+                onClick={() => setListDialogOpen(true)}
                 className="p-1 rounded text-[var(--fg-quieter)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)] transition-colors"
                 title="New List"
               >
@@ -182,6 +219,7 @@ export function Sidebar() {
           <ThemeToggle />
           <UserMenu />
         </div>
+        <ListCreator open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
       </aside>
     </>
   );

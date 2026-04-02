@@ -1,6 +1,6 @@
 export type Priority = 'none' | 'low' | 'medium' | 'high' | 'urgent';
 export type RecurringRule = 'daily' | 'weekly' | 'monthly' | null;
-export type SmartViewType = 'inbox' | 'today' | 'scheduled' | 'flagged' | 'all' | 'completed';
+export type SmartViewType = 'inbox' | 'today' | 'overdue' | 'tomorrow' | 'thisWeek' | 'next7Days' | 'scheduled' | 'planned' | 'flagged' | 'all' | 'someday' | 'events' | 'completed';
 
 export interface Subtask {
   id: string;
@@ -22,6 +22,9 @@ export interface Task {
   tags: string[];
   listId: string | null;
   recurring: RecurringRule;
+  isEvent: boolean;
+  eventStartTime: string | null;
+  eventEndTime: string | null;
   createdAt: string;
 }
 

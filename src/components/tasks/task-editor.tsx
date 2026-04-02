@@ -3,7 +3,7 @@
 import { useState, KeyboardEvent } from 'react';
 import {
   Star, Trash2, Plus, X, RotateCcw,
-  Flag, Calendar, Clock, Tag, List, AlertCircle
+  Flag, Calendar, Clock, Tag, List, AlertCircle, CalendarHeart
 } from 'lucide-react';
 import { Task, Priority, RecurringRule } from '@/types/task';
 import { useTaskStore } from '@/stores/task-store';
@@ -199,6 +199,51 @@ export function TaskEditor({ task }: TaskEditorProps) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Event */}
+      <div>
+        <label className="flex items-center justify-between">
+          <span className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)]">
+            <CalendarHeart size={12} /> Event
+          </span>
+          <button
+            onClick={() => updateTask(task.id, { isEvent: !task.isEvent })}
+            className={cn(
+              'relative h-6 w-11 rounded-full transition-colors',
+              task.isEvent ? 'bg-[var(--accent)]' : 'bg-[var(--bg-quiet)]'
+            )}
+          >
+            <span
+              className={cn(
+                'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform shadow-sm',
+                task.isEvent && 'translate-x-5'
+              )}
+            />
+          </button>
+        </label>
+        {task.isEvent && (
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <div>
+              <label className="text-xs text-[var(--fg-quieter)] mb-1 block">Start</label>
+              <input
+                type="datetime-local"
+                value={task.eventStartTime || ''}
+                onChange={(e) => updateTask(task.id, { eventStartTime: e.target.value || null })}
+                className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-[var(--fg-quieter)] mb-1 block">End</label>
+              <input
+                type="datetime-local"
+                value={task.eventEndTime || ''}
+                onChange={(e) => updateTask(task.id, { eventEndTime: e.target.value || null })}
+                className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Subtasks */}
