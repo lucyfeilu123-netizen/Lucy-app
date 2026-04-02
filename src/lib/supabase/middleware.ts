@@ -34,15 +34,18 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // If not logged in and trying to access dashboard, redirect to login
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup');
+  const isPublicPage = request.nextUrl.pathname.startsWith('/login')
+    || request.nextUrl.pathname.startsWith('/signup')
+    || request.nextUrl.pathname.startsWith('/privacy');
 
-  if (!user && !isAuthPage) {
+  if (!user && !isPublicPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
   // If logged in and on auth page, redirect to inbox
+  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup');
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/inbox';
