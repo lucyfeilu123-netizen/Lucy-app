@@ -3,6 +3,7 @@
 import { Menu } from 'lucide-react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { DetailPanel } from '@/components/layout/detail-panel';
+import { AmbientOverlay } from '@/components/ambient/ambient-overlay';
 import { useUIStore } from '@/stores/ui-store';
 
 export default function DashboardLayout({
@@ -14,6 +15,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-dvh overflow-hidden bg-[var(--bg-base)]">
+      <AmbientOverlay />
       <Sidebar />
 
       {/* Main content */}

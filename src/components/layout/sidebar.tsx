@@ -12,6 +12,7 @@ import { useListStore } from '@/stores/list-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useTimerStore } from '@/stores/timer-store';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { AmbientPicker } from '@/components/ambient/ambient-picker';
 import { Badge } from '@/components/ui/badge';
 import { formatTime } from '@/lib/utils';
 import { SmartViewType } from '@/types/task';
@@ -175,7 +176,8 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-[var(--border)] p-2">
+        <div className="border-t border-[var(--border)] p-2 space-y-1">
+          <AmbientPicker />
           <ThemeToggle />
         </div>
       </aside>
