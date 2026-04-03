@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { DetailPanel } from '@/components/layout/detail-panel';
 import { AmbientOverlay } from '@/components/ambient/ambient-overlay';
 import { useUIStore } from '@/stores/ui-store';
+import { useSync } from '@/hooks/use-sync';
 
 export default function DashboardLayout({
   children,
@@ -12,6 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const setMobileMenuOpen = useUIStore((s) => s.setMobileMenuOpen);
+  useSync();
 
   return (
     <div className="flex h-dvh overflow-hidden bg-[var(--bg-base)]">
