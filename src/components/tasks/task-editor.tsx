@@ -11,6 +11,7 @@ import { useListStore } from '@/stores/list-store';
 import { useUIStore } from '@/stores/ui-store';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { TimePicker } from '@/components/ui/time-picker';
 import { PRIORITY_CONFIG } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
@@ -195,18 +196,16 @@ export function TaskEditor({ task }: TaskEditorProps) {
             <label className="text-xs text-[var(--fg-quieter)] mb-1.5 block flex items-center gap-1">
               <Clock size={10} /> Start
             </label>
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => updateStartDateTime(e.target.value, startTime)}
-                className="flex-1 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               />
-              <input
-                type="time"
+              <TimePicker
                 value={startTime}
-                onChange={(e) => updateStartDateTime(startDate, e.target.value)}
-                className="w-28 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                onChange={(t) => updateStartDateTime(startDate, t)}
               />
             </div>
           </div>
@@ -215,18 +214,16 @@ export function TaskEditor({ task }: TaskEditorProps) {
             <label className="text-xs text-[var(--fg-quieter)] mb-1.5 block flex items-center gap-1">
               <Clock size={10} /> End
             </label>
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => updateEndDateTime(e.target.value, endTime)}
-                className="flex-1 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               />
-              <input
-                type="time"
+              <TimePicker
                 value={endTime}
-                onChange={(e) => updateEndDateTime(endDate, e.target.value)}
-                className="w-28 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                onChange={(t) => updateEndDateTime(endDate, t)}
               />
             </div>
           </div>
@@ -251,11 +248,9 @@ export function TaskEditor({ task }: TaskEditorProps) {
             <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
               <Clock size={12} /> Time
             </label>
-            <input
-              type="time"
+            <TimePicker
               value={task.dueTime || ''}
-              onChange={(e) => updateTask(task.id, { dueTime: e.target.value || null })}
-              className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              onChange={(t) => updateTask(task.id, { dueTime: t || null })}
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { CalendarHeart, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useTaskStore } from '@/stores/task-store';
 import { useUIStore } from '@/stores/ui-store';
@@ -127,6 +127,70 @@ export default function EventsPage() {
     setDetailPanelOpen(true);
   };
 
+  // Drag-to-select state
+  const [dragging, setDragging] = useState(false);
+  const [dragStartHour, setDragStartHour] = useState<number | null>(null);
+  const [dragEndHour, setDragEndHour] = useState<number | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  const getHourFromY = (clientY: number): number => {
+    if (!timelineRef.current) return 6;
+    const rect = timelineRef.current.getBoundingClientRect();
+    const relY = clientY - rect.top;
+    const totalHeight = rect.height;
+    const hour = 6 + (relY / totalHeight) * 18; // 6 AM to midnight (18 hours)
+    return Math.max(6, Math.min(23, Math.round(hour * 2) / 2)); // snap to 30min
+  };
+
+  const handleDragStart = (clientY: number) => {
+    const hour = getHourFromY(clientY);
+    setDragging(true);
+    setDragStartHour(hour);
+    setDragEndHour(hour);
+  };
+
+  const handleDragMove = (clientY: number) => {
+    if (!dragging) return;
+    setDragEndHour(getHourFromY(clientY));
+  };
+
+  const handleDragEnd = () => {
+    if (!dragging || dragStartHour === null || dragEndHour === null) {
+      setDragging(false);
+      return;
+    }
+    setDragging(false);
+    const startH = Math.min(dragStartHour, dragEndHour);
+    const endH = Math.max(dragStartHour, dragEndHour);
+    if (endH - startH < 0.5) return; // too small
+
+    const startHour = Math.floor(startH);
+    const startMin = (startH % 1) * 60;
+    const endHour = Math.floor(endH);
+    const endMin = (endH % 1) * 60;
+
+    const dragStartTime = `${selectedDateStr}T${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+    const dragEndTime = `${selectedDateStr}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+
+    addTask({
+      text: 'New Event',
+      isEvent: true,
+      dueDate: selectedDateStr,
+      eventStartTime: dragStartTime,
+      eventEndTime: dragEndTime,
+    });
+
+    const newTasks = useTaskStore.getState().tasks;
+    const newest = newTasks[0];
+    if (newest) {
+      selectTask(newest.id);
+      setDetailPanelOpen(true);
+    }
+
+    setDragStartHour(null);
+    setDragEndHour(null);
+  };
+
   const monthName = new Date(viewYear, viewMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   return (
@@ -245,52 +309,71 @@ export default function EventsPage() {
         </div>
       )}
 
-      {/* Quick time slots view */}
-      {dayEvents.length > 0 && (
-        <div className="mt-6 border-t border-[var(--border)] pt-4">
-          <h3 className="text-xs font-medium text-[var(--fg-quieter)] uppercase tracking-wider mb-3">
-            Day Overview
-          </h3>
-          <div className="relative">
-            {HOURS.filter(h => h % 2 === 0).map(h => (
-              <div key={h} className="flex items-start gap-2 h-8">
-                <span className="text-[10px] text-[var(--fg-quieter)] w-12 text-right shrink-0 -mt-1">
-                  {formatHour(h)}
-                </span>
-                <div className="flex-1 border-t border-[var(--border)] relative">
-                  {dayEvents.map((event, idx) => {
-                    const start = event.eventStartTime ? new Date(event.eventStartTime) : null;
-                    const end = event.eventEndTime ? new Date(event.eventEndTime) : null;
-                    if (!start) return null;
-                    const startH = start.getHours() + start.getMinutes() / 60;
-                    const endH = end ? end.getHours() + end.getMinutes() / 60 : startH + 1;
-                    if (startH >= h && startH < h + 2) {
-                      const top = ((startH - h) / 2) * 32;
-                      const height = Math.max(16, ((endH - startH) / 2) * 32);
-                      const color = eventColors[idx % eventColors.length];
-                      return (
-                        <div
-                          key={event.id}
-                          className="absolute left-0 right-0 rounded text-[10px] text-white px-1.5 py-0.5 truncate z-10"
-                          style={{
-                            top: `${top}px`,
-                            height: `${height}px`,
-                            backgroundColor: color,
-                            opacity: 0.85,
-                          }}
-                        >
-                          {event.text}
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
+      {/* Interactive Day Overview Timeline */}
+      <div className="mt-4 border-t border-[var(--border)] pt-4">
+        <h3 className="text-xs font-medium text-[var(--fg-quieter)] uppercase tracking-wider mb-3">
+          Day Overview — drag to create event
+        </h3>
+        <div
+          ref={timelineRef}
+          className="relative select-none touch-none"
+          onMouseDown={(e) => handleDragStart(e.clientY)}
+          onMouseMove={(e) => handleDragMove(e.clientY)}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={() => dragging && handleDragEnd()}
+          onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
+          onTouchMove={(e) => { e.preventDefault(); handleDragMove(e.touches[0].clientY); }}
+          onTouchEnd={handleDragEnd}
+        >
+          {HOURS.map(h => (
+            <div key={h} className="flex items-start gap-2 h-10 relative">
+              <span className="text-[10px] text-[var(--fg-quieter)] w-12 text-right shrink-0 -mt-1">
+                {formatHour(h)}
+              </span>
+              <div className="flex-1 border-t border-[var(--border)] h-full relative" />
+            </div>
+          ))}
+
+          {/* Drag selection overlay */}
+          {dragging && dragStartHour !== null && dragEndHour !== null && (
+            <div
+              className="absolute left-14 right-0 bg-[var(--accent)] opacity-20 rounded pointer-events-none"
+              style={{
+                top: `${((Math.min(dragStartHour, dragEndHour) - 6) / 18) * 100}%`,
+                height: `${(Math.abs(dragEndHour - dragStartHour) / 18) * 100}%`,
+              }}
+            />
+          )}
+
+          {/* Existing event bars */}
+          {dayEvents.map((event, idx) => {
+            const start = event.eventStartTime ? new Date(event.eventStartTime) : null;
+            const end = event.eventEndTime ? new Date(event.eventEndTime) : null;
+            if (!start) return null;
+            const startH = start.getHours() + start.getMinutes() / 60;
+            const endH = end ? end.getHours() + end.getMinutes() / 60 : startH + 1;
+            const color = eventColors[idx % eventColors.length];
+            return (
+              <div
+                key={event.id}
+                className="absolute left-14 right-0 rounded text-[10px] text-white px-2 py-0.5 truncate cursor-pointer z-10"
+                style={{
+                  top: `${((startH - 6) / 18) * 100}%`,
+                  height: `${Math.max(2.5, ((endH - startH) / 18) * 100)}%`,
+                  backgroundColor: color,
+                  opacity: 0.85,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEventClick(event.id);
+                }}
+              >
+                {event.text}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 }
