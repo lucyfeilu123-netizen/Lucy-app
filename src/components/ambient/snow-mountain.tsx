@@ -16,7 +16,7 @@ export function SnowMountainScene({ active, className }: Props) {
     if (!canvas || !active) return;
     const ctx = canvas.getContext('2d')!;
     let t = 0;
-    let gustTimer = 0;
+    let gustTimer = 5 + Math.random() * 8;
     let gustStrength = 0;
 
     const resize = () => {
@@ -26,156 +26,219 @@ export function SnowMountainScene({ active, className }: Props) {
     resize();
     window.addEventListener('resize', resize);
 
-    // Snowflakes
-    const flakes = Array.from({ length: 200 }, () => ({
-      x: Math.random() * 3000,
+    const flakes = Array.from({ length: 250 }, () => ({
+      x: Math.random() * 4000,
       y: Math.random() * 2000,
-      r: 1 + Math.random() * 2.5,
-      speed: 0.5 + Math.random() * 1.5,
+      r: 1 + Math.random() * 3,
+      speed: 0.4 + Math.random() * 1.2,
       drift: Math.random() * Math.PI * 2,
+      alpha: 0.4 + Math.random() * 0.5,
     }));
 
-    const drawMountain = (
-      peaks: { x: number; y: number }[],
-      baseY: number,
-      color: string,
-      w: number,
-      h: number,
-    ) => {
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(0, baseY);
-      for (let i = 0; i < peaks.length; i++) {
-        const p = peaks[i];
-        ctx.lineTo(p.x * w, p.y * h);
+    // Tree definitions: x (0-1), scale, depth (0=far, 1=near)
+    const trees = [
+      // Back row (faded)
+      { x: 0.08, scale: 0.7, depth: 0.2 },
+      { x: 0.22, scale: 0.85, depth: 0.25 },
+      { x: 0.75, scale: 0.75, depth: 0.2 },
+      { x: 0.92, scale: 0.8, depth: 0.22 },
+      // Mid row
+      { x: 0.02, scale: 1.1, depth: 0.55 },
+      { x: 0.18, scale: 1.3, depth: 0.6 },
+      { x: 0.38, scale: 1.0, depth: 0.5 },
+      { x: 0.62, scale: 1.05, depth: 0.5 },
+      { x: 0.82, scale: 1.25, depth: 0.58 },
+      { x: 0.95, scale: 1.15, depth: 0.55 },
+      // Front row (darkest, largest)
+      { x: -0.05, scale: 1.6, depth: 0.9 },
+      { x: 0.3, scale: 1.4, depth: 0.85 },
+      { x: 0.7, scale: 1.5, depth: 0.88 },
+      { x: 1.05, scale: 1.45, depth: 0.9 },
+    ].sort((a, b) => a.depth - b.depth);
+
+    const drawPineTree = (cx: number, baseY: number, scale: number, depth: number, w: number) => {
+      const treeH = 160 * scale;
+      const treeW = 70 * scale;
+      const layers = 5;
+      // Depth-based color: far trees lighter, near trees darker
+      const green = Math.round(42 + (1 - depth) * 50);
+      const treeColor = `rgb(${Math.round(green * 0.6)}, ${green}, ${Math.round(green * 0.6)})`;
+      const snowColor = depth > 0.7 ? '#e8e8f0' : '#d0d0d8';
+      const snowAlpha = depth > 0.7 ? 0.9 : 0.7;
+
+      // Trunk
+      ctx.fillStyle = treeColor;
+      ctx.fillRect(cx - 4 * scale, baseY - treeH * 0.15, 8 * scale, treeH * 0.15);
+
+      // Tree layers (triangles)
+      for (let i = 0; i < layers; i++) {
+        const layerY = baseY - treeH * 0.1 - (i / layers) * treeH * 0.85;
+        const layerW = treeW * (1 - i * 0.12);
+        const layerH = treeH / layers * 1.3;
+        // Green body
+        ctx.fillStyle = treeColor;
+        ctx.beginPath();
+        ctx.moveTo(cx, layerY - layerH);
+        ctx.lineTo(cx - layerW / 2, layerY);
+        ctx.lineTo(cx + layerW / 2, layerY);
+        ctx.closePath();
+        ctx.fill();
+        // Snow on top of each layer
+        ctx.globalAlpha = snowAlpha;
+        ctx.fillStyle = snowColor;
+        ctx.beginPath();
+        ctx.moveTo(cx, layerY - layerH);
+        ctx.lineTo(cx - layerW * 0.35, layerY - layerH * 0.45);
+        ctx.lineTo(cx + layerW * 0.35, layerY - layerH * 0.45);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
       }
-      ctx.lineTo(w, baseY);
-      ctx.closePath();
-      ctx.fill();
     };
 
     const draw = () => {
       const w = canvas.width;
       const h = canvas.height;
-      t += 0.006;
+      t += 0.005;
 
-      // Wind gust cycle
+      // Wind gusts
       gustTimer -= 0.016;
       if (gustTimer <= 0) {
-        gustStrength = 1 + Math.random() * 2;
-        gustTimer = 6 + Math.random() * 10;
+        gustStrength = 1.5 + Math.random() * 2.5;
+        gustTimer = 5 + Math.random() * 8;
       }
-      if (gustStrength > 0) gustStrength *= 0.995;
+      if (gustStrength > 0) gustStrength *= 0.992;
 
-      // Sky gradient
+      // Overcast sky
       const sky = ctx.createLinearGradient(0, 0, 0, h);
-      sky.addColorStop(0, '#1a2a4a');
-      sky.addColorStop(0.4, '#2a3a5a');
-      sky.addColorStop(0.7, '#3a4a6a');
-      sky.addColorStop(1, '#4a5a7a');
+      sky.addColorStop(0, '#b8b8c0');
+      sky.addColorStop(0.5, '#c4c4cc');
+      sky.addColorStop(1, '#d0d0d8');
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, w, h);
 
-      // Distant mountains (back layer)
-      drawMountain(
-        [
-          { x: 0, y: 0.65 }, { x: 0.12, y: 0.42 }, { x: 0.22, y: 0.5 },
-          { x: 0.35, y: 0.35 }, { x: 0.48, y: 0.48 }, { x: 0.55, y: 0.38 },
-          { x: 0.7, y: 0.45 }, { x: 0.82, y: 0.32 }, { x: 0.92, y: 0.44 },
-          { x: 1, y: 0.55 },
-        ],
-        h, '#1a1a2a', w, h,
-      );
-
-      // Fog layer between mountains
-      const fogY = h * 0.5;
-      ctx.globalAlpha = 0.12 + Math.sin(t * 0.4) * 0.04;
-      const fog = ctx.createLinearGradient(0, fogY - 40, 0, fogY + 60);
-      fog.addColorStop(0, 'transparent');
-      fog.addColorStop(0.5, '#4a5a7a');
-      fog.addColorStop(1, 'transparent');
-      ctx.fillStyle = fog;
-      ctx.fillRect(0, fogY - 40, w, 100);
-      ctx.globalAlpha = 1;
-
-      // Mid mountains
-      drawMountain(
-        [
-          { x: 0, y: 0.7 }, { x: 0.08, y: 0.55 }, { x: 0.2, y: 0.62 },
-          { x: 0.3, y: 0.48 }, { x: 0.42, y: 0.58 }, { x: 0.5, y: 0.45 },
-          { x: 0.6, y: 0.52 }, { x: 0.75, y: 0.42 }, { x: 0.85, y: 0.52 },
-          { x: 0.95, y: 0.46 }, { x: 1, y: 0.6 },
-        ],
-        h, '#2a2a3a', w, h,
-      );
-
-      // Snow caps on mid mountains (subtle white triangles at peaks)
+      // Snow ground (thick, with gentle drifts)
+      const groundY = h * 0.72;
       ctx.fillStyle = '#e8e8f0';
-      ctx.globalAlpha = 0.3;
-      const capPeaks = [
-        { x: 0.3, y: 0.48 }, { x: 0.5, y: 0.45 }, { x: 0.75, y: 0.42 },
-      ];
-      for (const p of capPeaks) {
-        ctx.beginPath();
-        ctx.moveTo(p.x * w, p.y * h);
-        ctx.lineTo(p.x * w - 25, p.y * h + 25);
-        ctx.lineTo(p.x * w + 25, p.y * h + 25);
-        ctx.closePath();
-        ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(0, groundY);
+      for (let gx = 0; gx <= w; gx += 3) {
+        const gy = groundY + Math.sin(gx * 0.008) * 12 + Math.sin(gx * 0.02 + 1) * 5;
+        ctx.lineTo(gx, gy);
       }
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fill();
+      // Snow highlight
+      ctx.fillStyle = '#ffffff';
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath();
+      ctx.moveTo(0, groundY + 5);
+      for (let gx = 0; gx <= w; gx += 3) {
+        const gy = groundY + 5 + Math.sin(gx * 0.008) * 12 + Math.sin(gx * 0.02 + 1) * 5;
+        ctx.lineTo(gx, gy);
+      }
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fill();
       ctx.globalAlpha = 1;
 
-      // Foreground mountains
-      drawMountain(
-        [
-          { x: -0.05, y: 0.85 }, { x: 0.1, y: 0.68 }, { x: 0.25, y: 0.78 },
-          { x: 0.4, y: 0.65 }, { x: 0.55, y: 0.75 }, { x: 0.65, y: 0.62 },
-          { x: 0.8, y: 0.72 }, { x: 0.9, y: 0.66 }, { x: 1.05, y: 0.8 },
-        ],
-        h, '#2a2a3a', w, h,
-      );
+      // Trees (sorted by depth, back to front)
+      for (const tree of trees) {
+        const tx = tree.x * w;
+        const baseY = groundY + Math.sin(tree.x * 10) * 8;
+        drawPineTree(tx, baseY, tree.scale, tree.depth, w);
+      }
 
-      // Ground
-      ctx.fillStyle = '#1a1a2a';
-      ctx.fillRect(0, h * 0.88, w, h * 0.12);
-
-      // Ground snow cover
-      ctx.globalAlpha = 0.15;
+      // Cabin
+      const cabinX = w * 0.5;
+      const cabinY = groundY + Math.sin(0.5 * 10) * 8;
+      const cabinW = 50;
+      const cabinH = 35;
+      const roofH = 25;
+      // Cabin body
+      ctx.fillStyle = '#8a7a60';
+      ctx.fillRect(cabinX - cabinW / 2, cabinY - cabinH, cabinW, cabinH);
+      // Darker wood lines
+      ctx.strokeStyle = '#6a5a40';
+      ctx.lineWidth = 1;
+      for (let ly = cabinY - cabinH + 7; ly < cabinY; ly += 7) {
+        ctx.beginPath();
+        ctx.moveTo(cabinX - cabinW / 2, ly);
+        ctx.lineTo(cabinX + cabinW / 2, ly);
+        ctx.stroke();
+      }
+      // Roof
+      ctx.fillStyle = '#5a4a3a';
+      ctx.beginPath();
+      ctx.moveTo(cabinX, cabinY - cabinH - roofH);
+      ctx.lineTo(cabinX - cabinW / 2 - 8, cabinY - cabinH);
+      ctx.lineTo(cabinX + cabinW / 2 + 8, cabinY - cabinH);
+      ctx.closePath();
+      ctx.fill();
+      // Snow on roof
       ctx.fillStyle = '#e8e8f0';
-      ctx.fillRect(0, h * 0.9, w, h * 0.1);
-      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(cabinX, cabinY - cabinH - roofH - 3);
+      ctx.lineTo(cabinX - cabinW / 2 - 12, cabinY - cabinH + 4);
+      ctx.lineTo(cabinX + cabinW / 2 + 12, cabinY - cabinH + 4);
+      ctx.closePath();
+      ctx.fill();
+      // Window with warm glow
+      const winX = cabinX - 6;
+      const winY = cabinY - cabinH + 10;
+      const winW = 12;
+      const winH = 14;
+      ctx.fillStyle = '#e8c870';
+      ctx.fillRect(winX, winY, winW, winH);
+      // Window glow
+      const wGlow = ctx.createRadialGradient(winX + winW / 2, winY + winH / 2, 0, winX + winW / 2, winY + winH / 2, 50);
+      wGlow.addColorStop(0, 'rgba(232, 200, 112, 0.15)');
+      wGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = wGlow;
+      ctx.fillRect(winX - 40, winY - 40, winW + 80, winH + 80);
+      // Window cross
+      ctx.strokeStyle = '#6a5a40';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(winX + winW / 2, winY);
+      ctx.lineTo(winX + winW / 2, winY + winH);
+      ctx.moveTo(winX, winY + winH / 2);
+      ctx.lineTo(winX + winW, winY + winH / 2);
+      ctx.stroke();
+      // Door
+      ctx.fillStyle = '#5a4a3a';
+      ctx.fillRect(cabinX + 8, cabinY - 18, 10, 18);
+      // Snow drift at cabin base
+      ctx.fillStyle = '#e8e8f0';
+      ctx.beginPath();
+      ctx.ellipse(cabinX, cabinY, cabinW / 2 + 10, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
 
       // Snowflakes
-      const windX = Math.sin(t) * 0.5 + gustStrength * 1.5;
-      ctx.fillStyle = '#e8e8f0';
+      const windX = Math.sin(t * 0.8) * 0.4 + gustStrength * 1.2;
+      ctx.fillStyle = '#ffffff';
       for (const f of flakes) {
         f.y += f.speed;
-        f.x += Math.sin(f.drift + t * 1.5) * 0.4 + windX * f.speed * 0.3;
+        f.x += Math.sin(f.drift + t * 1.2) * 0.3 + windX * f.speed * 0.4;
         if (f.y > h + 5) {
-          f.y = -5;
+          f.y = -5 - Math.random() * 30;
           f.x = Math.random() * w;
         }
         const fx = ((f.x % w) + w) % w;
-        const alpha = 0.3 + Math.sin(t * 2 + f.drift) * 0.15;
-        ctx.globalAlpha = alpha;
+        ctx.globalAlpha = f.alpha * (0.7 + Math.sin(t + f.drift) * 0.3);
         ctx.beginPath();
         ctx.arc(fx, f.y, f.r, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
 
-      // Vignette overlay
-      const vig = ctx.createRadialGradient(w / 2, h / 2, h * 0.3, w / 2, h / 2, h * 0.9);
-      vig.addColorStop(0, 'transparent');
-      vig.addColorStop(1, 'rgba(10, 10, 20, 0.3)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, w, h);
-
       rafRef.current = requestAnimationFrame(draw);
     };
 
     rafRef.current = requestAnimationFrame(draw);
-
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', resize);

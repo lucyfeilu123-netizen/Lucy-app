@@ -47,7 +47,7 @@ export function AmbientPicker() {
         title="Ambient & Sound"
       >
         <Palette size={16} />
-        <span>Ambience</span>
+        <span>Features</span>
       </button>
 
       {open && (
