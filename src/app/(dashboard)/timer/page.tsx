@@ -1,13 +1,11 @@
 'use client';
 
 import { useTimerStore } from '@/stores/timer-store';
-import { useTaskStore } from '@/stores/task-store';
 import { useTimer } from '@/hooks/use-timer';
 import { TimerDisplay } from '@/components/timer/timer-display';
 import { TimerControls } from '@/components/timer/timer-controls';
 import { TimerPresets } from '@/components/timer/timer-presets';
 import { TimerSettingsButton } from '@/components/timer/timer-settings';
-import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 export default function TimerPage() {
@@ -15,9 +13,6 @@ export default function TimerPage() {
 
   const { mode, status, remainingSeconds, totalSeconds, sessionsCompleted, settings } = useTimerStore();
   const setMode = useTimerStore((s) => s.setMode);
-  const getFocusQueue = useTaskStore((s) => s.getFocusQueue);
-  const toggleDone = useTaskStore((s) => s.toggleDone);
-  const focusQueue = getFocusQueue().slice(0, 5);
 
   const modes = [
     { id: 'work' as const, label: 'Focus' },
@@ -92,31 +87,6 @@ export default function TimerPage() {
         </span>
       </div>
 
-      {/* Focus Task Queue */}
-      {focusQueue.length > 0 && (
-        <div className="w-full max-w-md">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-[var(--fg-quieter)] mb-3">
-            Up Next
-          </h3>
-          <div className="space-y-2">
-            {focusQueue.map((task, i) => (
-              <div
-                key={task.id}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2',
-                  i === 0 ? 'bg-[var(--bg-quiet)]' : 'opacity-60'
-                )}
-              >
-                <Checkbox
-                  checked={task.done}
-                  onChange={() => toggleDone(task.id)}
-                />
-                <span className="text-sm text-[var(--fg)] truncate">{task.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

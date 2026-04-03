@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, KeyboardEvent } from 'react';
+import { useState, useRef, KeyboardEvent } from 'react';
 import { Plus } from 'lucide-react';
 import { useTaskStore } from '@/stores/task-store';
 import { useI18n } from '@/lib/i18n/provider';
@@ -13,19 +13,27 @@ interface TaskInputProps {
 
 export function TaskInput({ listId, className }: TaskInputProps) {
   const [text, setText] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const addTask = useTaskStore((s) => s.addTask);
   const { t } = useI18n();
 
   const handleSubmit = () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      inputRef.current?.focus();
+      return;
+    }
     addTask({ text: text.trim(), listId: listId || null });
     setText('');
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      if (text.trim()) {
+        addTask({ text: text.trim(), listId: listId || null });
+        setText('');
+      }
     }
   };
 
@@ -38,6 +46,7 @@ export function TaskInput({ listId, className }: TaskInputProps) {
         <Plus size={14} strokeWidth={3} />
       </button>
       <input
+        ref={inputRef}
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}

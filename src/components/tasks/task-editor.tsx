@@ -3,7 +3,7 @@
 import { useState, KeyboardEvent } from 'react';
 import {
   Star, Trash2, Plus, X, RotateCcw,
-  Flag, Calendar, Clock, Tag, List, AlertCircle, CalendarHeart
+  Calendar, Clock, Tag, AlertCircle, CalendarHeart, Save
 } from 'lucide-react';
 import { Task, Priority, RecurringRule } from '@/types/task';
 import { useTaskStore } from '@/stores/task-store';
@@ -26,18 +26,16 @@ const recurringOptions: { label: string; value: RecurringRule }[] = [
   { label: 'Monthly', value: 'monthly' },
 ];
 
+const TAG_PRESETS = ['Party', 'Work', 'School', 'Household', 'Shopping', 'Personal', 'Health', 'Travel'];
+
 export function TaskEditor({ task }: TaskEditorProps) {
   const updateTask = useTaskStore((s) => s.updateTask);
   const deleteTask = useTaskStore((s) => s.deleteTask);
   const toggleDone = useTaskStore((s) => s.toggleDone);
   const selectTask = useTaskStore((s) => s.selectTask);
-  const addSubtask = useTaskStore((s) => s.addSubtask);
-  const toggleSubtask = useTaskStore((s) => s.toggleSubtask);
-  const deleteSubtask = useTaskStore((s) => s.deleteSubtask);
   const setDetailPanelOpen = useUIStore((s) => s.setDetailPanelOpen);
   const lists = useListStore((s) => s.lists);
 
-  const [newSubtask, setNewSubtask] = useState('');
   const [newTag, setNewTag] = useState('');
 
   const handleDelete = () => {
@@ -46,15 +44,23 @@ export function TaskEditor({ task }: TaskEditorProps) {
     setDetailPanelOpen(false);
   };
 
-  const handleAddSubtask = () => {
-    if (!newSubtask.trim()) return;
-    addSubtask(task.id, newSubtask.trim());
-    setNewSubtask('');
+  const handleSave = () => {
+    selectTask(null);
+    setDetailPanelOpen(false);
   };
 
-  const handleAddTag = () => {
+  const toggleTag = (tag: string) => {
+    const lower = tag.toLowerCase();
+    if (task.tags.includes(lower)) {
+      updateTask(task.id, { tags: task.tags.filter(t => t !== lower) });
+    } else {
+      updateTask(task.id, { tags: [...task.tags, lower] });
+    }
+  };
+
+  const handleAddCustomTag = () => {
     if (!newTag.trim()) return;
-    const tag = newTag.trim().replace(/^#/, '');
+    const tag = newTag.trim().toLowerCase().replace(/^#/, '');
     if (!task.tags.includes(tag)) {
       updateTask(task.id, { tags: [...task.tags, tag] });
     }
@@ -63,6 +69,28 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
   const removeTag = (tag: string) => {
     updateTask(task.id, { tags: task.tags.filter(t => t !== tag) });
+  };
+
+  // Parse start/end for separate date and time inputs
+  const startDate = task.eventStartTime ? task.eventStartTime.split('T')[0] : '';
+  const startTime = task.eventStartTime ? task.eventStartTime.split('T')[1]?.slice(0, 5) : '';
+  const endDate = task.eventEndTime ? task.eventEndTime.split('T')[0] : '';
+  const endTime = task.eventEndTime ? task.eventEndTime.split('T')[1]?.slice(0, 5) : '';
+
+  const updateStartDateTime = (date: string, time: string) => {
+    if (date && time) {
+      updateTask(task.id, { eventStartTime: `${date}T${time}` });
+    } else if (date) {
+      updateTask(task.id, { eventStartTime: `${date}T${startTime || '09:00'}` });
+    }
+  };
+
+  const updateEndDateTime = (date: string, time: string) => {
+    if (date && time) {
+      updateTask(task.id, { eventEndTime: `${date}T${time}` });
+    } else if (date) {
+      updateTask(task.id, { eventEndTime: `${date}T${endTime || '10:00'}` });
+    }
   };
 
   return (
@@ -76,6 +104,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
           type="text"
           value={task.text}
           onChange={(e) => updateTask(task.id, { text: e.target.value })}
+          placeholder={task.isEvent ? 'Event name...' : 'Task name...'}
           className={cn(
             'flex-1 bg-transparent text-base font-medium text-[var(--fg)]',
             'focus:outline-none',
@@ -111,13 +140,13 @@ export function TaskEditor({ task }: TaskEditorProps) {
         <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
           <AlertCircle size={12} /> Priority
         </label>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 flex-wrap">
           {priorities.map((p) => (
             <button
               key={p}
               onClick={() => updateTask(task.id, { priority: p })}
               className={cn(
-                'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+                'px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors min-w-[44px]',
                 task.priority === p
                   ? 'ring-2 ring-[var(--accent)]'
                   : 'hover:bg-[var(--bg-quiet)]'
@@ -135,73 +164,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
         </div>
       </div>
 
-      {/* Due Date & Time */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-            <Calendar size={12} /> Due Date
-          </label>
-          <input
-            type="date"
-            value={task.dueDate || ''}
-            onChange={(e) => updateTask(task.id, { dueDate: e.target.value || null })}
-            className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-          />
-        </div>
-        <div>
-          <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-            <Clock size={12} /> Time
-          </label>
-          <input
-            type="time"
-            value={task.dueTime || ''}
-            onChange={(e) => updateTask(task.id, { dueTime: e.target.value || null })}
-            className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-          />
-        </div>
-      </div>
-
-      {/* List assignment */}
-      <div>
-        <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-          <List size={12} /> List
-        </label>
-        <select
-          value={task.listId || ''}
-          onChange={(e) => updateTask(task.id, { listId: e.target.value || null })}
-          className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-        >
-          <option value="">No list</option>
-          {lists.map((l) => (
-            <option key={l.id} value={l.id}>{l.emoji} {l.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Recurring */}
-      <div>
-        <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-          <RotateCcw size={12} /> Recurring
-        </label>
-        <div className="flex gap-1.5">
-          {recurringOptions.map((opt) => (
-            <button
-              key={opt.label}
-              onClick={() => updateTask(task.id, { recurring: opt.value })}
-              className={cn(
-                'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
-                task.recurring === opt.value
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'text-[var(--fg-quiet)] hover:bg-[var(--bg-quiet)]'
-              )}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Event */}
+      {/* Event toggle */}
       <div>
         <label className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)]">
@@ -222,80 +185,152 @@ export function TaskEditor({ task }: TaskEditorProps) {
             />
           </button>
         </label>
-        {task.isEvent && (
-          <div className="grid grid-cols-2 gap-3 mt-2">
-            <div>
-              <label className="text-xs text-[var(--fg-quieter)] mb-1 block">Start</label>
-              <input
-                type="datetime-local"
-                value={task.eventStartTime || ''}
-                onChange={(e) => updateTask(task.id, { eventStartTime: e.target.value || null })}
-                className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-[var(--fg-quieter)] mb-1 block">End</label>
-              <input
-                type="datetime-local"
-                value={task.eventEndTime || ''}
-                onChange={(e) => updateTask(task.id, { eventEndTime: e.target.value || null })}
-                className="w-full h-9 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              />
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Subtasks */}
+      {/* Event time pickers (only when isEvent) */}
+      {task.isEvent && (
+        <div className="space-y-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)]">
+          {/* Start */}
+          <div>
+            <label className="text-xs text-[var(--fg-quieter)] mb-1.5 block flex items-center gap-1">
+              <Clock size={10} /> Start
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => updateStartDateTime(e.target.value, startTime)}
+                className="flex-1 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => updateStartDateTime(startDate, e.target.value)}
+                className="w-28 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+            </div>
+          </div>
+          {/* End */}
+          <div>
+            <label className="text-xs text-[var(--fg-quieter)] mb-1.5 block flex items-center gap-1">
+              <Clock size={10} /> End
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => updateEndDateTime(e.target.value, endTime)}
+                className="flex-1 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => updateEndDateTime(endDate, e.target.value)}
+                className="w-28 h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Due Date & Time (only for non-events) */}
+      {!task.isEvent && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
+              <Calendar size={12} /> Due Date
+            </label>
+            <input
+              type="date"
+              value={task.dueDate || ''}
+              onChange={(e) => updateTask(task.id, { dueDate: e.target.value || null })}
+              className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            />
+          </div>
+          <div>
+            <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
+              <Clock size={12} /> Time
+            </label>
+            <input
+              type="time"
+              value={task.dueTime || ''}
+              onChange={(e) => updateTask(task.id, { dueTime: e.target.value || null })}
+              className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* List (only for non-events) */}
+      {!task.isEvent && (
+        <div>
+          <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
+            List
+          </label>
+          <select
+            value={task.listId || ''}
+            onChange={(e) => updateTask(task.id, { listId: e.target.value || null })}
+            className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+          >
+            <option value="">No list</option>
+            {lists.map((l) => (
+              <option key={l.id} value={l.id}>{l.emoji} {l.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Recurring */}
       <div>
         <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-          Subtasks ({task.subtasks.filter(s => s.done).length}/{task.subtasks.length})
+          <RotateCcw size={12} /> Recurring
         </label>
-        <div className="space-y-1">
-          {task.subtasks.map((sub) => (
-            <div key={sub.id} className="flex items-center gap-2 group">
-              <Checkbox
-                checked={sub.done}
-                onChange={() => toggleSubtask(task.id, sub.id)}
-                className="h-4 w-4"
-              />
-              <span className={cn(
-                'flex-1 text-sm text-[var(--fg-quiet)]',
-                sub.done && 'line-through text-[var(--fg-quieter)]'
-              )}>
-                {sub.text}
-              </span>
-              <button
-                onClick={() => deleteSubtask(task.id, sub.id)}
-                className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-[var(--fg-quieter)] hover:text-[var(--negative)] transition-all"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          ))}
-          <div className="flex items-center gap-2 mt-1">
-            <input
-              type="text"
-              value={newSubtask}
-              onChange={(e) => setNewSubtask(e.target.value)}
-              onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && handleAddSubtask()}
-              placeholder="Add subtask..."
-              className="flex-1 bg-transparent text-sm text-[var(--fg)] placeholder:text-[var(--fg-quieter)] focus:outline-none"
-            />
-            <button onClick={handleAddSubtask} className="text-[var(--fg-quieter)] hover:text-[var(--fg)]">
-              <Plus size={14} />
+        <div className="flex gap-1.5 flex-wrap">
+          {recurringOptions.map((opt) => (
+            <button
+              key={opt.label}
+              onClick={() => updateTask(task.id, { recurring: opt.value })}
+              className={cn(
+                'px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors min-w-[44px]',
+                task.recurring === opt.value
+                  ? 'bg-[var(--accent)] text-white'
+                  : 'text-[var(--fg-quiet)] hover:bg-[var(--bg-quiet)]'
+              )}
+            >
+              {opt.label}
             </button>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Tags */}
+      {/* Tags with presets */}
       <div>
         <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
           <Tag size={12} /> Tags
         </label>
+        {/* Preset tags */}
         <div className="flex flex-wrap gap-1.5 mb-2">
-          {task.tags.map((tag) => (
+          {TAG_PRESETS.map((tag) => {
+            const isActive = task.tags.includes(tag.toLowerCase());
+            return (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={cn(
+                  'px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
+                  isActive
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'bg-[var(--bg-quiet)] text-[var(--fg-quiet)] hover:text-[var(--fg)]'
+                )}
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+        {/* Custom tags */}
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {task.tags.filter(t => !TAG_PRESETS.map(p => p.toLowerCase()).includes(t)).map((tag) => (
             <span
               key={tag}
               className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-quiet)] px-2 py-0.5 text-xs text-[var(--fg-quiet)]"
@@ -307,28 +342,33 @@ export function TaskEditor({ task }: TaskEditorProps) {
             </span>
           ))}
         </div>
+        {/* Add custom tag */}
         <div className="flex items-center gap-2">
           <input
             type="text"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && handleAddTag()}
-            placeholder="Add tag..."
+            onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && handleAddCustomTag()}
+            placeholder="Custom tag..."
             className="flex-1 bg-transparent text-sm text-[var(--fg)] placeholder:text-[var(--fg-quieter)] focus:outline-none"
           />
-          <button onClick={handleAddTag} className="text-[var(--fg-quieter)] hover:text-[var(--fg)]">
+          <button onClick={handleAddCustomTag} className="text-[var(--fg-quieter)] hover:text-[var(--fg)]">
             <Plus size={14} />
           </button>
         </div>
       </div>
 
+      {/* Save button */}
+      <Button onClick={handleSave} className="w-full" variant="primary">
+        <Save size={14} />
+        Save
+      </Button>
+
       {/* Delete */}
-      <div className="pt-4 border-t border-[var(--border)]">
-        <Button variant="danger" size="sm" onClick={handleDelete} className="w-full">
-          <Trash2 size={14} />
-          Delete Task
-        </Button>
-      </div>
+      <Button variant="danger" size="sm" onClick={handleDelete} className="w-full">
+        <Trash2 size={14} />
+        Delete
+      </Button>
     </div>
   );
 }

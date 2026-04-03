@@ -16,6 +16,7 @@ interface TaskItemProps {
 
 export function TaskItem({ task }: TaskItemProps) {
   const toggleDone = useTaskStore((s) => s.toggleDone);
+  const updateTask = useTaskStore((s) => s.updateTask);
   const selectTask = useTaskStore((s) => s.selectTask);
   const selectedTaskId = useTaskStore((s) => s.selectedTaskId);
   const setDetailPanelOpen = useUIStore((s) => s.setDetailPanelOpen);
@@ -87,9 +88,18 @@ export function TaskItem({ task }: TaskItemProps) {
         </div>
       </div>
 
-      {task.flagged && (
-        <Star size={14} className="shrink-0 mt-1 fill-[var(--costa-350)] text-[var(--costa-350)]" />
-      )}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          updateTask(task.id, { flagged: !task.flagged });
+        }}
+        className="shrink-0 mt-1 p-0.5 rounded hover:bg-[var(--bg-quiet)] transition-colors"
+      >
+        <Star
+          size={14}
+          className={task.flagged ? 'fill-[var(--costa-350)] text-[var(--costa-350)]' : 'text-[var(--fg-subtle)] hover:text-[var(--fg-quieter)]'}
+        />
+      </button>
     </div>
   );
 }
