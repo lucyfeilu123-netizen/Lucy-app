@@ -193,42 +193,41 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
       {/* Event time pickers (only when isEvent) */}
       {task.isEvent && (
-        <div className="space-y-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)]">
+        <div className="space-y-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)]">
           {/* Start */}
           <div>
-            <label className="text-xs text-[var(--fg-quieter)] mb-1.5 block flex items-center gap-1">
-              <Clock size={10} /> Start
+            <label className="text-xs text-[var(--fg-quieter)] mb-2 block text-center font-medium uppercase tracking-wider">
+              Start
             </label>
-            <div className="space-y-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => updateStartDateTime(e.target.value, startTime)}
-                className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              />
-              <TimePicker
-                value={startTime}
-                onChange={(t) => updateStartDateTime(startDate, t)}
-              />
-            </div>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => updateStartDateTime(e.target.value, startTime)}
+              className="w-full h-11 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
+            />
+            <TimePicker
+              value={startTime}
+              onChange={(t) => updateStartDateTime(startDate, t)}
+            />
           </div>
+
+          <div className="border-t border-[var(--border)]" />
+
           {/* End */}
           <div>
-            <label className="text-xs text-[var(--fg-quieter)] mb-1.5 block flex items-center gap-1">
-              <Clock size={10} /> End
+            <label className="text-xs text-[var(--fg-quieter)] mb-2 block text-center font-medium uppercase tracking-wider">
+              End
             </label>
-            <div className="space-y-2">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => updateEndDateTime(e.target.value, endTime)}
-                className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              />
-              <TimePicker
-                value={endTime}
-                onChange={(t) => updateEndDateTime(endDate, t)}
-              />
-            </div>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => updateEndDateTime(e.target.value, endTime)}
+              className="w-full h-11 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--accent)] mb-2"
+            />
+            <TimePicker
+              value={endTime}
+              onChange={(t) => updateEndDateTime(endDate, t)}
+            />
           </div>
         </div>
       )}

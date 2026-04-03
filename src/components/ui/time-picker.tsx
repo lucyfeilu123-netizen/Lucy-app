@@ -30,7 +30,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
   };
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn('flex items-center justify-center gap-2', className)}>
       {/* Hour */}
       <select
         value={hour}
