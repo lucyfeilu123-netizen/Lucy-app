@@ -11,10 +11,13 @@ import { TaskList } from '@/components/tasks/task-list';
 export default function ListPage({ params }: { params: Promise<{ listId: string }> }) {
   const { listId } = use(params);
   const lists = useListStore((s) => s.lists);
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByList = useTaskStore((s) => s.getTasksByList);
 
   const list = lists.find(l => l.id === listId);
-  const tasks = getTasksByList(listId);
+  const filteredTasks = getTasksByList(listId);
 
   if (!list) {
     return (
@@ -28,13 +31,13 @@ export default function ListPage({ params }: { params: Promise<{ listId: string 
     <div>
       <ViewHeader
         title={list.name}
-        subtitle={`${tasks.length} task${tasks.length !== 1 ? 's' : ''}`}
+        subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? 's' : ''}`}
         icon={<span className="text-2xl">{list.emoji}</span>}
       />
       <TaskSortBar />
       <TaskInput listId={listId} />
       <TaskList
-        tasks={tasks}
+        tasks={filteredTasks}
         emptyMessage={`No tasks in ${list.name}`}
       />
     </div>

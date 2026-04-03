@@ -8,8 +8,11 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function ScheduledPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('scheduled');
+  const filteredTasks = getTasksByView('scheduled');
 
   return (
     <div>
@@ -21,7 +24,7 @@ export default function ScheduledPage() {
       <TaskSortBar />
       <TaskInput />
       <TaskList
-        tasks={tasks}
+        tasks={filteredTasks}
         emptyMessage="No scheduled tasks"
       />
     </div>

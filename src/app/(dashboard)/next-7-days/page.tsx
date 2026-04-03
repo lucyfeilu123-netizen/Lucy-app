@@ -8,19 +8,22 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function Next7DaysPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('next7Days');
+  const filteredTasks = getTasksByView('next7Days');
 
   return (
     <div>
       <ViewHeader
         title="Next 7 Days"
-        subtitle={`${tasks.length} upcoming task${tasks.length !== 1 ? 's' : ''}`}
+        subtitle={`${filteredTasks.length} upcoming task${filteredTasks.length !== 1 ? 's' : ''}`}
         icon={<Calendar size={24} className="text-[var(--hydra-350)]" />}
       />
       <TaskSortBar />
       <TaskInput />
-      <TaskList tasks={tasks} emptyMessage="No tasks in the next 7 days" />
+      <TaskList tasks={filteredTasks} emptyMessage="No tasks in the next 7 days" />
     </div>
   );
 }

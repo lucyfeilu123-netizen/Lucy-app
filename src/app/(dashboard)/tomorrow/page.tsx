@@ -8,8 +8,11 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function TomorrowPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('tomorrow');
+  const filteredTasks = getTasksByView('tomorrow');
 
   return (
     <div>
@@ -24,7 +27,7 @@ export default function TomorrowPage() {
       />
       <TaskSortBar />
       <TaskInput />
-      <TaskList tasks={tasks} emptyMessage="Nothing planned for tomorrow" />
+      <TaskList tasks={filteredTasks} emptyMessage="Nothing planned for tomorrow" />
     </div>
   );
 }

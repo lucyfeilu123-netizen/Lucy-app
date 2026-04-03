@@ -8,9 +8,11 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function TodayPage() {
-  const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('today');
   const allTasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
+  const getTasksByView = useTaskStore((s) => s.getTasksByView);
+  const filteredTasks = getTasksByView('today');
   const todayDone = allTasks.filter(t => {
     if (!t.done || !t.doneAt) return false;
     const d = new Date(t.doneAt);
@@ -24,13 +26,13 @@ export default function TodayPage() {
         title="Today"
         subtitle={new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         icon={<CalendarDays size={24} className="text-[var(--costa-350)]" />}
-        taskCount={tasks.length}
+        taskCount={filteredTasks.length}
         completedCount={todayDone}
       />
       <TaskSortBar />
       <TaskInput />
       <TaskList
-        tasks={tasks}
+        tasks={filteredTasks}
         emptyMessage="No tasks due today. Enjoy your day!"
       />
     </div>

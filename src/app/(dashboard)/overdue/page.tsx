@@ -7,18 +7,21 @@ import { TaskSortBar } from '@/components/tasks/task-sort-bar';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function OverduePage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('overdue');
+  const filteredTasks = getTasksByView('overdue');
 
   return (
     <div>
       <ViewHeader
         title="Overdue"
-        subtitle={`${tasks.length} overdue task${tasks.length !== 1 ? 's' : ''}`}
+        subtitle={`${filteredTasks.length} overdue task${filteredTasks.length !== 1 ? 's' : ''}`}
         icon={<AlertCircle size={24} className="text-[var(--negative)]" />}
       />
       <TaskSortBar />
-      <TaskList tasks={tasks} emptyMessage="No overdue tasks!" />
+      <TaskList tasks={filteredTasks} emptyMessage="No overdue tasks!" />
     </div>
   );
 }

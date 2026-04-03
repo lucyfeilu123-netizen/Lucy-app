@@ -8,8 +8,11 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function FlaggedPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('flagged');
+  const filteredTasks = getTasksByView('flagged');
 
   return (
     <div>
@@ -21,7 +24,7 @@ export default function FlaggedPage() {
       <TaskSortBar />
       <TaskInput />
       <TaskList
-        tasks={tasks}
+        tasks={filteredTasks}
         emptyMessage="No flagged tasks"
       />
     </div>

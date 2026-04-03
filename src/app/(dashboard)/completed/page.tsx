@@ -7,19 +7,22 @@ import { TaskSortBar } from '@/components/tasks/task-sort-bar';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function CompletedPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('completed');
+  const filteredTasks = getTasksByView('completed');
 
   return (
     <div>
       <ViewHeader
         title="Completed"
-        subtitle={`${tasks.length} completed task${tasks.length !== 1 ? 's' : ''}`}
+        subtitle={`${filteredTasks.length} completed task${filteredTasks.length !== 1 ? 's' : ''}`}
         icon={<CheckCircle2 size={24} className="text-[var(--positive)]" />}
       />
       <TaskSortBar />
       <TaskList
-        tasks={tasks}
+        tasks={filteredTasks}
         emptyMessage="No completed tasks yet"
       />
     </div>

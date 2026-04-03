@@ -8,19 +8,22 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function ThisWeekPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('thisWeek');
+  const filteredTasks = getTasksByView('thisWeek');
 
   return (
     <div>
       <ViewHeader
         title="This Week"
-        subtitle={`${tasks.length} task${tasks.length !== 1 ? 's' : ''} this week`}
+        subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? 's' : ''} this week`}
         icon={<CalendarRange size={24} className="text-[var(--limsa-350)]" />}
       />
       <TaskSortBar />
       <TaskInput />
-      <TaskList tasks={tasks} emptyMessage="No tasks this week" />
+      <TaskList tasks={filteredTasks} emptyMessage="No tasks this week" />
     </div>
   );
 }

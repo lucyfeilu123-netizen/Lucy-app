@@ -8,20 +8,23 @@ import { TaskInput } from '@/components/tasks/task-input';
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function AllPage() {
+  const tasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const sortMode = useTaskStore((s) => s.sortMode);
   const getTasksByView = useTaskStore((s) => s.getTasksByView);
-  const tasks = getTasksByView('all');
+  const filteredTasks = getTasksByView('all');
 
   return (
     <div>
       <ViewHeader
         title="All Tasks"
-        subtitle={`${tasks.length} task${tasks.length !== 1 ? 's' : ''}`}
+        subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? 's' : ''}`}
         icon={<ListTodo size={24} className="text-[var(--gridania-350)]" />}
       />
       <TaskSortBar />
       <TaskInput />
       <TaskList
-        tasks={tasks}
+        tasks={filteredTasks}
         emptyMessage="No tasks yet. Create one!"
       />
     </div>
