@@ -149,7 +149,7 @@ export function RainScene({ active, className }: Props) {
     <canvas
       ref={canvasRef}
       className={className}
-      style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     />
   );
 }

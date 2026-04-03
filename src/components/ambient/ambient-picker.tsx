@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Palette, Volume2, X, Waves, TreePine, CloudRain, Stars, Mountain } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settings-store';
+import { useUIStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
 
 type AmbientTheme = 'none' | 'ocean' | 'forest' | 'rain' | 'starry' | 'snow';
@@ -71,7 +72,13 @@ export function AmbientPicker() {
                 {themeOptions.map((opt) => (
                   <button
                     key={opt.id}
-                    onClick={() => setAmbientTheme(opt.id)}
+                    onClick={() => {
+                      setAmbientTheme(opt.id);
+                      setOpen(false);
+                      if (opt.id !== 'none') {
+                        useUIStore.getState().setMobileMenuOpen(false);
+                      }
+                    }}
                     className={cn(
                       'flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-xs transition-colors',
                       ambientTheme === opt.id
