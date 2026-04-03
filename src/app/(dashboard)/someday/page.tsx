@@ -23,7 +23,7 @@ export default function SomedayPage() {
       />
       <TaskSortBar />
       <TaskInput />
-      <TaskList tasks={filteredTasks} emptyMessage="No someday tasks" />
+      <TaskList tasks={filteredTasks} emptyMessage="Your someday list is empty. Add tasks you want to do... someday." />
     </div>
   );
 }

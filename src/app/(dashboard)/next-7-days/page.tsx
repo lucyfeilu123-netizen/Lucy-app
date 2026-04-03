@@ -23,7 +23,7 @@ export default function Next7DaysPage() {
       />
       <TaskSortBar />
       <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
-      <TaskList tasks={filteredTasks} emptyMessage="No tasks in the next 7 days" />
+      <TaskList tasks={filteredTasks} emptyMessage="Nothing in the next 7 days. Enjoy the calm!" />
     </div>
   );
 }

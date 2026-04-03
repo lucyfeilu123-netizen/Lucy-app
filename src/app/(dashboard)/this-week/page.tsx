@@ -23,7 +23,7 @@ export default function ThisWeekPage() {
       />
       <TaskSortBar />
       <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
-      <TaskList tasks={filteredTasks} emptyMessage="No tasks this week" />
+      <TaskList tasks={filteredTasks} emptyMessage="Great week ahead! Add something to focus on." />
     </div>
   );
 }

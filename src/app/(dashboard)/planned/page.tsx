@@ -4,7 +4,7 @@ import { CalendarCheck } from 'lucide-react';
 import { useTaskStore } from '@/stores/task-store';
 import { ViewHeader } from '@/components/tasks/view-header';
 import { TaskSortBar } from '@/components/tasks/task-sort-bar';
-import { TaskInput } from '@/components/tasks/task-input';
+
 import { TaskList } from '@/components/tasks/task-list';
 
 export default function PlannedPage() {
@@ -22,8 +22,7 @@ export default function PlannedPage() {
         icon={<CalendarCheck size={24} className="text-[var(--kuja-350)]" />}
       />
       <TaskSortBar />
-      <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
-      <TaskList tasks={filteredTasks} emptyMessage="No planned tasks" />
+      <TaskList tasks={filteredTasks} emptyMessage="No planned tasks. Add a due date to any task to plan ahead." />
     </div>
   );
 }
