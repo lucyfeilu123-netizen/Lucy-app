@@ -18,41 +18,42 @@ export function DetailPanel() {
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    selectTask(null);
+    setDetailPanelOpen(false);
+  };
+
   return (
     <>
-      {/* Mobile overlay */}
-      <div
-        className="fixed inset-0 z-40 bg-black/30 lg:hidden"
-        onClick={() => {
-          selectTask(null);
-          setDetailPanelOpen(false);
-        }}
-      />
+      {/* Mobile: full-screen fixed overlay that doesn't push content */}
+      <div className="fixed inset-0 z-[55] lg:hidden" onClick={handleClose}>
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
 
       <aside
         className={cn(
-          'fixed top-0 right-0 z-50 h-full w-full max-w-[var(--detail-panel-width)]',
-          'bg-[var(--bg-raised)] border-l border-[var(--border)]',
-          'flex flex-col overflow-y-auto',
-          'lg:relative lg:z-auto'
+          // Mobile: fixed full-screen overlay, no horizontal shift
+          'fixed inset-0 z-[56] lg:relative lg:z-auto',
+          'lg:w-[var(--detail-panel-width)] lg:min-w-[var(--detail-panel-width)]',
+          'bg-[var(--bg-raised)]',
+          'flex flex-col',
+          // Mobile: take full width, no max-width constraint
+          'lg:border-l lg:border-[var(--border)]'
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)] shrink-0">
           <h3 className="text-sm font-medium text-[var(--fg)]">Task Details</h3>
           <button
-            onClick={() => {
-              selectTask(null);
-              setDetailPanelOpen(false);
-            }}
-            className="p-1.5 rounded-lg text-[var(--fg-quieter)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)] transition-colors"
+            onClick={handleClose}
+            className="p-2 rounded-lg text-[var(--fg-quieter)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)] transition-colors"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Editor */}
-        <div className="flex-1 p-4">
+        {/* Editor — scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 pb-8">
           <TaskEditor task={task} />
         </div>
       </aside>

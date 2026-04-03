@@ -95,7 +95,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-0">
       {/* Title */}
       <div className="flex items-start gap-3">
         <div className="pt-1">
@@ -125,6 +125,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
       </div>
 
       {/* Notes */}
+      <div className="border-b border-[var(--border)] my-4" />
       <textarea
         value={task.notes}
         onChange={(e) => updateTask(task.id, { notes: e.target.value })}
@@ -137,6 +138,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
       />
 
       {/* Priority */}
+      <div className="border-b border-[var(--border)] my-4" />
       <div>
         <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
           <AlertCircle size={12} /> Priority
@@ -166,6 +168,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
       </div>
 
       {/* Event toggle */}
+      <div className="border-b border-[var(--border)] my-4" />
       <div>
         <label className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)]">
@@ -276,6 +279,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
       )}
 
       {/* Recurring */}
+      <div className="border-b border-[var(--border)] my-4" />
       <div>
         <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
           <RotateCcw size={12} /> Recurring
@@ -299,6 +303,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
       </div>
 
       {/* Tags with presets */}
+      <div className="border-b border-[var(--border)] my-4" />
       <div>
         <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
           <Tag size={12} /> Tags
@@ -354,6 +359,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
       </div>
 
       {/* Save button */}
+      <div className="border-b border-[var(--border)] my-4" />
       <Button onClick={handleSave} className="w-full" variant="primary">
         <Save size={14} />
         Save

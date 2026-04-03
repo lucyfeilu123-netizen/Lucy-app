@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TimePickerProps {
@@ -10,7 +9,6 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ value, onChange, className }: TimePickerProps) {
-  // Parse 24h time to 12h
   const parse = (v: string) => {
     if (!v) return { hour: 12, minute: 0, period: 'AM' as const };
     const [h, m] = v.split(':').map(Number);
@@ -32,40 +30,40 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
   };
 
   return (
-    <div className={cn('flex items-center gap-1', className)}>
+    <div className={cn('flex items-center gap-2', className)}>
       {/* Hour */}
       <select
         value={hour}
         onChange={(e) => update(Number(e.target.value), minute, period)}
-        className="h-10 w-14 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-sm text-[var(--fg)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--accent)] appearance-none"
+        className="h-12 w-16 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-base text-[var(--fg)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
       >
         {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
           <option key={h} value={h}>{h}</option>
         ))}
       </select>
 
-      <span className="text-[var(--fg-quieter)] font-bold">:</span>
+      <span className="text-lg text-[var(--fg-quieter)] font-bold">:</span>
 
       {/* Minute */}
       <select
         value={minute}
         onChange={(e) => update(hour, Number(e.target.value), period)}
-        className="h-10 w-14 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-sm text-[var(--fg)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--accent)] appearance-none"
+        className="h-12 w-16 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] text-base text-[var(--fg)] text-center focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
       >
         {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
           <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
         ))}
       </select>
 
-      {/* AM/PM */}
-      <div className="flex rounded-lg border border-[var(--border)] overflow-hidden">
+      {/* AM/PM — large toggle buttons */}
+      <div className="flex rounded-xl border border-[var(--border)] overflow-hidden ml-1">
         <button
           onClick={() => update(hour, minute, 'AM')}
           className={cn(
-            'h-10 px-3 text-xs font-semibold transition-colors',
+            'h-12 px-4 text-sm font-bold transition-colors min-w-[48px]',
             period === 'AM'
               ? 'bg-[var(--accent)] text-white'
-              : 'bg-[var(--bg-surface)] text-[var(--fg-quiet)] hover:bg-[var(--bg-quiet)]'
+              : 'bg-[var(--bg-surface)] text-[var(--fg-quieter)] active:bg-[var(--bg-quiet)]'
           )}
         >
           AM
@@ -73,10 +71,10 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
         <button
           onClick={() => update(hour, minute, 'PM')}
           className={cn(
-            'h-10 px-3 text-xs font-semibold transition-colors',
+            'h-12 px-4 text-sm font-bold transition-colors min-w-[48px]',
             period === 'PM'
               ? 'bg-[var(--accent)] text-white'
-              : 'bg-[var(--bg-surface)] text-[var(--fg-quiet)] hover:bg-[var(--bg-quiet)]'
+              : 'bg-[var(--bg-surface)] text-[var(--fg-quieter)] active:bg-[var(--bg-quiet)]'
           )}
         >
           PM
