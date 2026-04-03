@@ -2,7 +2,7 @@
   "name": "Pomodoro — Focus & Flow",
   "short_name": "Pomodoro",
   "description": "Pomodoro timer and task manager for focused productivity",
-  "start_url": "/inbox",
+  "start_url": "/home",
   "display": "standalone",
   "background_color": "#141414",
   "theme_color": "#141414",

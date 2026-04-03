@@ -50,7 +50,7 @@ export async function updateSession(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup') || request.nextUrl.pathname.startsWith('/forgot-password');
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
-    url.pathname = '/inbox';
+    url.pathname = '/home';
     return NextResponse.redirect(url);
   }
 
