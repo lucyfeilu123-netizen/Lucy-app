@@ -119,13 +119,17 @@ export function Sidebar() {
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)]">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)] shrink-0">
+          <Link
+            href="/home"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <img src="/icon-192.png" alt="Pomodoro" className="h-7 w-7 rounded-lg" />
             <span className="font-semibold text-[var(--fg)]" style={{ fontFamily: 'var(--font-heading)' }}>
               Pomodoro
             </span>
-          </div>
+          </Link>
           <button
             onClick={() => setMobileMenuOpen(false)}
             className="lg:hidden p-1.5 rounded-lg text-[var(--fg-quieter)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)]"
