@@ -94,6 +94,12 @@ export function TaskEditor({ task }: TaskEditorProps) {
     }
   };
 
+  const formatDateDisplay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div className="space-y-0">
       {/* Title */}
@@ -193,7 +199,7 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
       {/* Event time pickers (only when isEvent) */}
       {task.isEvent && (
-        <div className="space-y-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)]">
+        <div className="space-y-4 p-3 rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)]">
           {/* Start */}
           <div>
             <label className="text-xs text-[var(--fg-quieter)] mb-2 block text-center font-medium uppercase tracking-wider">
@@ -234,28 +240,28 @@ export function TaskEditor({ task }: TaskEditorProps) {
 
       {/* Due Date & Time (only for non-events) */}
       {!task.isEvent && (
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-              <Calendar size={12} /> Due Date
-            </label>
+        <>
+          <div className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
+            <Calendar size={12} /> Due Date
+            <span className="ml-auto flex items-center gap-1">
+              <Clock size={12} /> Time
+            </span>
+          </div>
+          {/* Date row */}
+          <div className="relative mb-2">
             <input
               type="date"
               value={task.dueDate || ''}
               onChange={(e) => updateTask(task.id, { dueDate: e.target.value || null })}
-              className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              className="w-full h-11 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--fg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] tabular-nums"
             />
           </div>
-          <div>
-            <label className="flex items-center gap-2 text-xs font-medium text-[var(--fg-quieter)] mb-2">
-              <Clock size={12} /> Time
-            </label>
-            <TimePicker
-              value={task.dueTime || ''}
-              onChange={(t) => updateTask(task.id, { dueTime: t || null })}
-            />
-          </div>
-        </div>
+          {/* Time row — full width */}
+          <TimePicker
+            value={task.dueTime || ''}
+            onChange={(t) => updateTask(task.id, { dueTime: t || null })}
+          />
+        </>
       )}
 
       {/* List (only for non-events) */}

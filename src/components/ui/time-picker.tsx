@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TimePickerProps {
@@ -20,6 +21,9 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
   };
 
   const { hour, minute, period } = parse(value);
+  const [hourText, setHourText] = useState(String(hour));
+  const [minuteText, setMinuteText] = useState(String(minute).padStart(2, '0'));
+  const minuteRef = useRef<HTMLInputElement>(null);
 
   const update = (h: number, m: number, p: 'AM' | 'PM') => {
     let h24 = h;
@@ -29,46 +33,81 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     onChange(`${String(h24).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
   };
 
-  const selectClass = cn(
-    'h-12 flex-1 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)]',
-    'text-base text-[var(--fg)] text-center font-medium',
+  const handleHourChange = (text: string) => {
+    const digits = text.replace(/\D/g, '').slice(0, 2);
+    setHourText(digits);
+    const num = Number(digits);
+    if (num >= 1 && num <= 12) {
+      update(num, minute, period);
+      if (digits.length === 2) minuteRef.current?.focus();
+    }
+  };
+
+  const handleHourBlur = () => {
+    const num = Number(hourText);
+    const clamped = num < 1 ? 12 : num > 12 ? 12 : num;
+    setHourText(String(clamped));
+    update(clamped, minute, period);
+  };
+
+  const handleMinuteChange = (text: string) => {
+    const digits = text.replace(/\D/g, '').slice(0, 2);
+    setMinuteText(digits);
+    const num = Number(digits);
+    if (num >= 0 && num <= 59) {
+      update(hour, num, period);
+    }
+  };
+
+  const handleMinuteBlur = () => {
+    const num = Number(minuteText);
+    const clamped = num > 59 ? 59 : num < 0 ? 0 : num;
+    setMinuteText(String(clamped).padStart(2, '0'));
+    update(hour, clamped, period);
+  };
+
+  const inputClass = cn(
+    'h-11 w-14 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)]',
+    'text-base text-[var(--fg)] text-center font-medium tabular-nums',
     'focus:outline-none focus:ring-2 focus:ring-[var(--accent)]'
   );
 
   return (
-    <div className={cn('flex items-center justify-center gap-2 w-full', className)}>
-      {/* Hour */}
-      <select
-        value={hour}
-        onChange={(e) => update(Number(e.target.value), minute, period)}
-        className={selectClass}
-        style={{ textAlignLast: 'center' }}
-      >
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
-          <option key={h} value={h}>{h}</option>
-        ))}
-      </select>
+    <div className={cn('flex items-center justify-center gap-1.5 w-full', className)}>
+      {/* Hour input */}
+      <input
+        type="text"
+        inputMode="numeric"
+        value={hourText}
+        onChange={(e) => handleHourChange(e.target.value)}
+        onBlur={handleHourBlur}
+        onFocus={(e) => e.target.select()}
+        placeholder="12"
+        className={inputClass}
+      />
 
       <span className="text-xl text-[var(--fg-quieter)] font-bold">:</span>
 
-      {/* Minute */}
-      <select
-        value={minute}
-        onChange={(e) => update(hour, Number(e.target.value), period)}
-        className={selectClass}
-        style={{ textAlignLast: 'center' }}
-      >
-        {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
-          <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
-        ))}
-      </select>
+      {/* Minute input */}
+      <input
+        ref={minuteRef}
+        type="text"
+        inputMode="numeric"
+        value={minuteText}
+        onChange={(e) => handleMinuteChange(e.target.value)}
+        onBlur={handleMinuteBlur}
+        onFocus={(e) => e.target.select()}
+        placeholder="00"
+        className={inputClass}
+      />
 
-      {/* AM/PM */}
-      <div className="flex rounded-xl border border-[var(--border)] overflow-hidden shrink-0">
+      {/* AM/PM toggle */}
+      <div className="flex rounded-xl border border-[var(--border)] overflow-hidden shrink-0 ml-1">
         <button
-          onClick={() => update(hour, minute, 'AM')}
+          type="button"
+          onClick={() => { update(hour, minute, 'AM'); }}
           className={cn(
-            'h-12 w-14 text-sm font-bold transition-colors',
+            'h-11 w-12 text-xs font-bold transition-colors',
             period === 'AM'
               ? 'bg-[var(--accent)] text-white'
               : 'bg-[var(--bg-surface)] text-[var(--fg-quieter)] active:bg-[var(--bg-quiet)]'
@@ -77,9 +116,10 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
           AM
         </button>
         <button
-          onClick={() => update(hour, minute, 'PM')}
+          type="button"
+          onClick={() => { update(hour, minute, 'PM'); }}
           className={cn(
-            'h-12 w-14 text-sm font-bold transition-colors',
+            'h-11 w-12 text-xs font-bold transition-colors',
             period === 'PM'
               ? 'bg-[var(--accent)] text-white'
               : 'bg-[var(--bg-surface)] text-[var(--fg-quieter)] active:bg-[var(--bg-quiet)]'
