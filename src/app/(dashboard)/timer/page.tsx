@@ -63,18 +63,31 @@ export default function TimerPage() {
       {/* Presets */}
       <TimerPresets className="mb-8" />
 
-      {/* Session dots */}
-      <div className="flex items-center gap-2 mb-8">
-        {sessionDots.map((completed, i) => (
-          <div
-            key={i}
-            className={cn(
-              'h-2.5 w-2.5 rounded-full transition-colors',
-              completed ? 'bg-[var(--accent)]' : 'bg-[var(--bg-quiet)]'
-            )}
-          />
+      {/* Mode dots — tap to switch between Focus / Short Break / Long Break */}
+      <div className="flex items-center gap-3 mb-8">
+        {modes.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => setMode(m.id)}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <div
+              className={cn(
+                'h-3 w-3 rounded-full transition-all duration-300',
+                mode === m.id
+                  ? m.id === 'work' ? 'bg-[var(--accent)] scale-125' : m.id === 'shortBreak' ? 'bg-[var(--positive)] scale-125' : 'bg-[var(--warning)] scale-125'
+                  : 'bg-[var(--bg-quiet)]'
+              )}
+            />
+            <span className={cn(
+              'text-[10px] transition-colors',
+              mode === m.id ? 'text-[var(--fg)]' : 'text-[var(--fg-quieter)]'
+            )}>
+              {m.label}
+            </span>
+          </button>
         ))}
-        <span className="text-xs text-[var(--fg-quieter)] ml-2">
+        <span className="text-xs text-[var(--fg-quieter)] ml-3">
           {sessionsCompleted} session{sessionsCompleted !== 1 ? 's' : ''}
         </span>
       </div>

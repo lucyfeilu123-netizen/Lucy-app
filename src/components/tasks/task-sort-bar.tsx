@@ -2,6 +2,7 @@
 
 import { Search, ArrowUpDown } from 'lucide-react';
 import { useTaskStore } from '@/stores/task-store';
+import { useI18n } from '@/lib/i18n/provider';
 import { cn } from '@/lib/utils';
 
 const sortLabels = {
@@ -12,6 +13,7 @@ const sortLabels = {
 } as const;
 
 export function TaskSortBar() {
+  const { t } = useI18n();
   const searchQuery = useTaskStore((s) => s.searchQuery);
   const setSearchQuery = useTaskStore((s) => s.setSearchQuery);
   const sortMode = useTaskStore((s) => s.sortMode);
@@ -31,7 +33,7 @@ export function TaskSortBar() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search tasks..."
+          placeholder={t('task.search')}
           className="flex-1 bg-transparent text-sm text-[var(--fg)] placeholder:text-[var(--fg-quieter)] focus:outline-none"
         />
       </div>

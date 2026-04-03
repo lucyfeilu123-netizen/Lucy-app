@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent } from 'react';
 import { Plus } from 'lucide-react';
 import { useTaskStore } from '@/stores/task-store';
+import { useI18n } from '@/lib/i18n/provider';
 import { cn } from '@/lib/utils';
 
 interface TaskInputProps {
@@ -13,6 +14,7 @@ interface TaskInputProps {
 export function TaskInput({ listId, className }: TaskInputProps) {
   const [text, setText] = useState('');
   const addTask = useTaskStore((s) => s.addTask);
+  const { t } = useI18n();
 
   const handleSubmit = () => {
     if (!text.trim()) return;
@@ -40,7 +42,7 @@ export function TaskInput({ listId, className }: TaskInputProps) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Add a task..."
+        placeholder={t('task.addTask')}
         className={cn(
           'flex-1 bg-transparent text-sm text-[var(--fg)] placeholder:text-[var(--fg-quieter)]',
           'focus:outline-none'

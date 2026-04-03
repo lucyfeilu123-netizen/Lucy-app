@@ -9,6 +9,7 @@ import {
   AlertCircle, CalendarPlus, CalendarRange, Calendar, CalendarCheck, Cloud, CalendarHeart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n/provider';
 import { useTaskStore } from '@/stores/task-store';
 import { useListStore } from '@/stores/list-store';
 import { useUIStore } from '@/stores/ui-store';
@@ -23,33 +24,34 @@ import { formatTime } from '@/lib/utils';
 import { SmartViewType } from '@/types/task';
 
 const mainViews = [
-  { id: 'inbox' as SmartViewType, label: 'Inbox', icon: Inbox, href: '/inbox' },
-  { id: 'today' as SmartViewType, label: 'Today', icon: CalendarDays, href: '/today' },
-  { id: 'overdue' as SmartViewType, label: 'Overdue', icon: AlertCircle, href: '/overdue' },
-  { id: 'tomorrow' as SmartViewType, label: 'Tomorrow', icon: CalendarPlus, href: '/tomorrow' },
+  { id: 'inbox' as SmartViewType, key: 'nav.inbox', icon: Inbox, href: '/inbox' },
+  { id: 'today' as SmartViewType, key: 'nav.today', icon: CalendarDays, href: '/today' },
+  { id: 'overdue' as SmartViewType, key: 'nav.overdue', icon: AlertCircle, href: '/overdue' },
+  { id: 'tomorrow' as SmartViewType, key: 'nav.tomorrow', icon: CalendarPlus, href: '/tomorrow' },
 ];
 
 const scheduleViews = [
-  { id: 'thisWeek' as SmartViewType, label: 'This Week', icon: CalendarRange, href: '/this-week' },
-  { id: 'next7Days' as SmartViewType, label: 'Next 7 Days', icon: Calendar, href: '/next-7-days' },
-  { id: 'scheduled' as SmartViewType, label: 'Scheduled', icon: CalendarClock, href: '/scheduled' },
-  { id: 'planned' as SmartViewType, label: 'Planned', icon: CalendarCheck, href: '/planned' },
+  { id: 'thisWeek' as SmartViewType, key: 'nav.thisWeek', icon: CalendarRange, href: '/this-week' },
+  { id: 'next7Days' as SmartViewType, key: 'nav.next7Days', icon: Calendar, href: '/next-7-days' },
+  { id: 'scheduled' as SmartViewType, key: 'nav.scheduled', icon: CalendarClock, href: '/scheduled' },
+  { id: 'planned' as SmartViewType, key: 'nav.planned', icon: CalendarCheck, href: '/planned' },
 ];
 
 const moreViews = [
-  { id: 'flagged' as SmartViewType, label: 'Flagged', icon: Star, href: '/flagged' },
-  { id: 'all' as SmartViewType, label: 'All Tasks', icon: ListTodo, href: '/all' },
-  { id: 'someday' as SmartViewType, label: 'Someday', icon: Cloud, href: '/someday' },
-  { id: 'events' as SmartViewType, label: 'Events', icon: CalendarHeart, href: '/events' },
-  { id: 'completed' as SmartViewType, label: 'Completed', icon: CheckCircle2, href: '/completed' },
+  { id: 'flagged' as SmartViewType, key: 'nav.flagged', icon: Star, href: '/flagged' },
+  { id: 'all' as SmartViewType, key: 'nav.allTasks', icon: ListTodo, href: '/all' },
+  { id: 'someday' as SmartViewType, key: 'nav.someday', icon: Cloud, href: '/someday' },
+  { id: 'events' as SmartViewType, key: 'nav.events', icon: CalendarHeart, href: '/events' },
+  { id: 'completed' as SmartViewType, key: 'nav.completed', icon: CheckCircle2, href: '/completed' },
 ];
 
-function NavSection({ views, label, pathname, getTaskCount, onNavigate }: {
+function NavSection({ views, label, pathname, getTaskCount, onNavigate, t }: {
   views: typeof mainViews;
   label?: string;
   pathname: string;
   getTaskCount: (view: SmartViewType) => number;
   onNavigate: () => void;
+  t: (key: string) => string;
 }) {
   return (
     <div>
@@ -75,7 +77,7 @@ function NavSection({ views, label, pathname, getTaskCount, onNavigate }: {
               )}
             >
               <view.icon size={18} />
-              <span className="flex-1">{view.label}</span>
+              <span className="flex-1">{t(view.key)}</span>
               {count > 0 && <Badge variant="count">{count}</Badge>}
             </Link>
           );
@@ -87,6 +89,7 @@ function NavSection({ views, label, pathname, getTaskCount, onNavigate }: {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { t } = useI18n();
   const getTaskCount = useTaskStore((s) => s.getTaskCount);
   const lists = useListStore((s) => s.lists);
   const tasks = useTaskStore((s) => s.tasks);
@@ -137,9 +140,9 @@ export function Sidebar() {
 
         {/* Smart Views */}
         <nav className="flex-1 overflow-y-auto px-2 py-3">
-          <NavSection views={mainViews} pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} />
-          <NavSection views={scheduleViews} label="Schedule" pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} />
-          <NavSection views={moreViews} label="More" pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} />
+          <NavSection views={mainViews} pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} t={t} />
+          <NavSection views={scheduleViews} label={t('nav.schedule')} pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} t={t} />
+          <NavSection views={moreViews} label={t('nav.more')} pathname={pathname} getTaskCount={getTaskCount} onNavigate={() => setMobileMenuOpen(false)} t={t} />
 
           {/* Mini Timer */}
           <div className="mt-4 mx-1">
@@ -160,7 +163,7 @@ export function Sidebar() {
                   {formatTime(remainingSeconds)}
                 </div>
                 <div className="text-xs opacity-70 capitalize">
-                  {status === 'running' ? `${mode === 'work' ? 'Focus' : mode === 'shortBreak' ? 'Short Break' : 'Long Break'}` : 'Timer'}
+                  {status === 'running' ? `${mode === 'work' ? t('timer.focus') : mode === 'shortBreak' ? t('timer.shortBreak') : t('timer.longBreak')}` : t('nav.timer')}
                 </div>
               </div>
               {status === 'running' && (
@@ -173,7 +176,7 @@ export function Sidebar() {
           <div className="mt-6">
             <div className="flex items-center justify-between px-3 mb-1">
               <span className="text-xs font-medium uppercase tracking-wider text-[var(--fg-quieter)]">
-                Lists
+                {t('nav.lists')}
               </span>
               <button
                 onClick={() => setListDialogOpen(true)}
@@ -208,7 +211,7 @@ export function Sidebar() {
                 );
               })}
               {lists.length === 0 && (
-                <p className="px-3 py-2 text-xs text-[var(--fg-quieter)]">No lists yet</p>
+                <p className="px-3 py-2 text-xs text-[var(--fg-quieter)]">{t('nav.noLists')}</p>
               )}
             </div>
           </div>

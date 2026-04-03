@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Palette, Volume2, X, Waves, TreePine, CloudRain, Stars, Mountain } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useUIStore } from '@/stores/ui-store';
+import { useI18n } from '@/lib/i18n/provider';
 import { cn } from '@/lib/utils';
 
 type AmbientTheme = 'none' | 'ocean' | 'forest' | 'rain' | 'starry' | 'snow';
@@ -28,6 +29,7 @@ const noiseOptions: { id: WhiteNoise; label: string }[] = [
 
 export function AmbientPicker() {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   const ambientTheme = useSettingsStore((s) => s.ambientTheme);
   const whiteNoise = useSettingsStore((s) => s.whiteNoise);
   const whiteNoiseVolume = useSettingsStore((s) => s.whiteNoiseVolume);
@@ -47,7 +49,7 @@ export function AmbientPicker() {
         title="Ambient & Sound"
       >
         <Palette size={16} />
-        <span>Features</span>
+        <span>{t('nav.features')}</span>
       </button>
 
       {open && (
@@ -66,7 +68,7 @@ export function AmbientPicker() {
             {/* Theme selection */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-[var(--fg-quieter)] mb-2">
-                Background
+                {t('ambient.background')}
               </h4>
               <div className="grid grid-cols-3 gap-1.5">
                 {themeOptions.map((opt) => (
@@ -96,7 +98,7 @@ export function AmbientPicker() {
             {/* White noise selection */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-[var(--fg-quieter)] mb-2">
-                White Noise
+                {t('ambient.whiteNoise')}
               </h4>
               <div className="flex flex-wrap gap-1.5">
                 {noiseOptions.map((opt) => (
