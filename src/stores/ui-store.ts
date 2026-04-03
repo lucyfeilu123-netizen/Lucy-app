@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'dark' | 'light' | 'pink' | 'red' | 'green';
 
 interface UIStore {
   theme: Theme;

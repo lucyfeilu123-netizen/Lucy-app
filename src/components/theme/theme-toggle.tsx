@@ -1,35 +1,37 @@
 'use client';
 
-import { Sun, Moon, Monitor } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
 
-const modes = ['dark', 'light', 'system'] as const;
-const icons = { dark: Moon, light: Sun, system: Monitor };
+const themes = [
+  { id: 'dark' as const, label: 'Dark', color: '#1a1a1a' },
+  { id: 'light' as const, label: 'Light', color: '#f5f0e8' },
+  { id: 'pink' as const, label: 'Pink', color: '#d4647a' },
+  { id: 'red' as const, label: 'Red', color: '#c44040' },
+  { id: 'green' as const, label: 'Green', color: '#3a8a5c' },
+];
 
 export function ThemeToggle() {
   const theme = useUIStore((s) => s.theme);
   const setTheme = useUIStore((s) => s.setTheme);
 
-  const cycle = () => {
-    const idx = modes.indexOf(theme);
-    setTheme(modes[(idx + 1) % modes.length]);
-  };
-
-  const Icon = icons[theme];
-
   return (
-    <button
-      onClick={cycle}
-      className={cn(
-        'flex items-center gap-2 rounded-lg px-3 py-2 text-sm',
-        'text-[var(--fg-quiet)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)]',
-        'transition-colors'
-      )}
-      title={`Theme: ${theme}`}
-    >
-      <Icon size={16} />
-      <span className="capitalize">{theme}</span>
-    </button>
+    <div className="flex items-center gap-2 px-3 py-2">
+      <span className="text-xs text-[var(--fg-quieter)] mr-1">Theme</span>
+      {themes.map((t) => (
+        <button
+          key={t.id}
+          onClick={() => setTheme(t.id)}
+          title={t.label}
+          className={cn(
+            'h-5 w-5 rounded-full transition-transform border-2',
+            theme === t.id
+              ? 'scale-125 border-white shadow-lg'
+              : 'border-transparent hover:scale-110'
+          )}
+          style={{ backgroundColor: t.color }}
+        />
+      ))}
+    </div>
   );
 }
