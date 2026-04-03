@@ -46,8 +46,19 @@ export default function SignupPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      setSuccess(true);
-      setLoading(false);
+      // Try to auto-login (works if email confirmation is disabled in Supabase)
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (!loginError) {
+        router.push('/inbox');
+        router.refresh();
+      } else {
+        // Email confirmation required — show check email message
+        setSuccess(true);
+        setLoading(false);
+      }
     }
   };
 

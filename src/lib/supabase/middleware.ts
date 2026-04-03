@@ -36,7 +36,9 @@ export async function updateSession(request: NextRequest) {
   // If not logged in and trying to access dashboard, redirect to login
   const isPublicPage = request.nextUrl.pathname.startsWith('/login')
     || request.nextUrl.pathname.startsWith('/signup')
-    || request.nextUrl.pathname.startsWith('/privacy');
+    || request.nextUrl.pathname.startsWith('/privacy')
+    || request.nextUrl.pathname.startsWith('/forgot-password')
+    || request.nextUrl.pathname.startsWith('/auth/reset-password');
 
   if (!user && !isPublicPage) {
     const url = request.nextUrl.clone();
@@ -45,7 +47,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // If logged in and on auth page, redirect to inbox
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup');
+  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup') || request.nextUrl.pathname.startsWith('/forgot-password');
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/inbox';
