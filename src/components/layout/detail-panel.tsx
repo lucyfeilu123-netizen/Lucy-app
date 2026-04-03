@@ -43,12 +43,12 @@ export function DetailPanel() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)] shrink-0">
-          <h3 className="text-sm font-medium text-[var(--fg)]">Task Details</h3>
+          <h3 className="text-base font-semibold text-[var(--fg)]">Task Details</h3>
           <button
             onClick={handleClose}
-            className="p-2 rounded-lg text-[var(--fg-quieter)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)] transition-colors"
+            className="p-3 -mr-2 rounded-lg text-[var(--fg)] hover:bg-[var(--bg-quiet)] transition-colors active:bg-[var(--bg-subtle)]"
           >
-            <X size={18} />
+            <X size={22} />
           </button>
         </div>
 

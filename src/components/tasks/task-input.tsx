@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, KeyboardEvent } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { useTaskStore } from '@/stores/task-store';
 import { useI18n } from '@/lib/i18n/provider';
 import { cn } from '@/lib/utils';
@@ -66,6 +66,14 @@ export function TaskInput({ listId, dueDate, flagged, className }: TaskInputProp
           'focus:outline-none'
         )}
       />
+      {text.trim() && (
+        <button
+          onClick={createTask}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--positive)] text-white hover:opacity-90 transition-all active:scale-95"
+        >
+          <Check size={16} strokeWidth={3} />
+        </button>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { DetailPanel } from '@/components/layout/detail-panel';
 import { AmbientOverlay } from '@/components/ambient/ambient-overlay';
 import { useUIStore } from '@/stores/ui-store';
 import { useSync } from '@/hooks/use-sync';
+import { useNotifications } from '@/hooks/use-notifications';
 
 export default function DashboardLayout({
   children,
@@ -14,6 +15,7 @@ export default function DashboardLayout({
 }) {
   const setMobileMenuOpen = useUIStore((s) => s.setMobileMenuOpen);
   useSync();
+  useNotifications();
 
   return (
     <div className="flex h-dvh overflow-hidden bg-[var(--bg-base)]">
