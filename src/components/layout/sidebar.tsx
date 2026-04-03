@@ -118,14 +118,14 @@ export function Sidebar() {
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)] shrink-0">
+        {/* Header — with safe area padding for phone notch */}
+        <div className="flex items-center justify-between px-4 pt-[env(safe-area-inset-top,0px)] border-b border-[var(--border)] shrink-0">
           <Link
             href="/home"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity py-3"
           >
-            <img src="/icon-192.png" alt="Pomodoro" className="h-7 w-7 rounded-lg" />
+            <img src="/icon-192.png" alt="Pomodoro" className="h-8 w-8 rounded-lg shrink-0" />
             <span className="font-semibold text-[var(--fg)]" style={{ fontFamily: 'var(--font-heading)' }}>
               Pomodoro
             </span>

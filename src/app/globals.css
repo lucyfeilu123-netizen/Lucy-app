@@ -71,10 +71,10 @@
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
 
-  /* Light mode semantic tokens */
-  --bg-base: var(--warm-astra-200);
-  --bg-raised: var(--warm-astra-100);
-  --bg-surface: var(--warm-astra-0);
+  /* Light mode semantic tokens — warm eye-protection tones */
+  --bg-base: var(--warm-astra-400);
+  --bg-raised: var(--warm-astra-300);
+  --bg-surface: var(--warm-astra-200);
   --bg-subtle: oklch(from var(--warm-astra-2000) l c h / 0.035);
   --bg-quiet: oklch(from var(--warm-astra-2000) l c h / 0.07);
   --bg-inverse: var(--warm-astra-1000);
