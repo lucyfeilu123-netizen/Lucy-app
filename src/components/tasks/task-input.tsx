@@ -8,32 +8,35 @@ import { cn } from '@/lib/utils';
 
 interface TaskInputProps {
   listId?: string | null;
+  dueDate?: string | null;
   className?: string;
 }
 
-export function TaskInput({ listId, className }: TaskInputProps) {
+export function TaskInput({ listId, dueDate, className }: TaskInputProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const addTask = useTaskStore((s) => s.addTask);
   const { t } = useI18n();
+
+  const createTask = () => {
+    if (!text.trim()) return;
+    addTask({ text: text.trim(), listId: listId || null, dueDate: dueDate || null });
+    setText('');
+    inputRef.current?.focus();
+  };
 
   const handleSubmit = () => {
     if (!text.trim()) {
       inputRef.current?.focus();
       return;
     }
-    addTask({ text: text.trim(), listId: listId || null });
-    setText('');
-    inputRef.current?.focus();
+    createTask();
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (text.trim()) {
-        addTask({ text: text.trim(), listId: listId || null });
-        setText('');
-      }
+      createTask();
     }
   };
 

@@ -30,7 +30,7 @@ export default function TodayPage() {
         completedCount={todayDone}
       />
       <TaskSortBar />
-      <TaskInput />
+      <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
       <TaskList
         tasks={filteredTasks}
         emptyMessage="No tasks due today. Enjoy your day!"

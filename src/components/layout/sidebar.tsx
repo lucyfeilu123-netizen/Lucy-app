@@ -1,17 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Inbox, CalendarDays, CalendarClock, Star, ListTodo, CheckCircle2,
-  Timer, Plus, Menu, X,
+  Timer, Menu, X,
   AlertCircle, CalendarPlus, CalendarRange, Calendar, CalendarCheck, Cloud, CalendarHeart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/lib/i18n/provider';
 import { useTaskStore } from '@/stores/task-store';
-import { useListStore } from '@/stores/list-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useTimerStore } from '@/stores/timer-store';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
@@ -19,7 +17,6 @@ import { AmbientPicker } from '@/components/ambient/ambient-picker';
 import { LanguagePicker } from '@/components/theme/language-picker';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Badge } from '@/components/ui/badge';
-import { ListCreator } from '@/components/lists/list-creator';
 import { formatTime } from '@/lib/utils';
 import { SmartViewType } from '@/types/task';
 
@@ -91,15 +88,9 @@ export function Sidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
   const getTaskCount = useTaskStore((s) => s.getTaskCount);
-  const lists = useListStore((s) => s.lists);
-  const tasks = useTaskStore((s) => s.tasks);
   const mobileMenuOpen = useUIStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useUIStore((s) => s.setMobileMenuOpen);
   const { remainingSeconds, status, mode } = useTimerStore();
-  const [listDialogOpen, setListDialogOpen] = useState(false);
-
-  const getListTaskCount = (listId: string) =>
-    tasks.filter(t => !t.done && t.listId === listId).length;
 
   return (
     <>
@@ -172,49 +163,6 @@ export function Sidebar() {
             </Link>
           </div>
 
-          {/* Custom Lists */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between px-3 mb-1">
-              <span className="text-xs font-medium uppercase tracking-wider text-[var(--fg-quieter)]">
-                {t('nav.lists')}
-              </span>
-              <button
-                onClick={() => setListDialogOpen(true)}
-                className="p-1 rounded text-[var(--fg-quieter)] hover:text-[var(--fg)] hover:bg-[var(--bg-quiet)] transition-colors"
-                title="New List"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-            <div className="space-y-0.5">
-              {lists.map((list) => {
-                const isActive = pathname === `/list/${list.id}`;
-                const count = getListTaskCount(list.id);
-                return (
-                  <Link
-                    key={list.id}
-                    href={`/list/${list.id}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                      isActive
-                        ? 'bg-[var(--bg-quiet)] text-[var(--fg)]'
-                        : 'text-[var(--fg-quiet)] hover:text-[var(--fg)] hover:bg-[var(--bg-subtle)]'
-                    )}
-                  >
-                    <span>{list.emoji}</span>
-                    <span className="flex-1 truncate">{list.name}</span>
-                    {count > 0 && (
-                      <Badge variant="count">{count}</Badge>
-                    )}
-                  </Link>
-                );
-              })}
-              {lists.length === 0 && (
-                <p className="px-3 py-2 text-xs text-[var(--fg-quieter)]">{t('nav.noLists')}</p>
-              )}
-            </div>
-          </div>
         </nav>
 
         {/* Footer */}
@@ -224,7 +172,6 @@ export function Sidebar() {
           <LanguagePicker />
           <UserMenu />
         </div>
-        <ListCreator open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
       </aside>
     </>
   );

@@ -26,7 +26,7 @@ export default function TomorrowPage() {
         icon={<CalendarPlus size={24} className="text-[var(--warning)]" />}
       />
       <TaskSortBar />
-      <TaskInput />
+      <TaskInput dueDate={(() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })()} />
       <TaskList tasks={filteredTasks} emptyMessage="Nothing planned for tomorrow" />
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { X, Volume2, Play, Pause, RotateCcw, SkipForward } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useTimerStore } from '@/stores/timer-store';
@@ -20,15 +21,8 @@ const scenes = {
   snow: SnowMountainScene,
 } as const;
 
-const sceneLabels = {
-  ocean: 'Ocean',
-  forest: 'Forest',
-  rain: 'Rain',
-  starry: 'Starry Sky',
-  snow: 'Snow Mountain',
-} as const;
-
 export function AmbientOverlay() {
+  const touchStartRef = useRef<number>(0);
   const ambientTheme = useSettingsStore((s) => s.ambientTheme);
   const whiteNoise = useSettingsStore((s) => s.whiteNoise);
   const whiteNoiseVolume = useSettingsStore((s) => s.whiteNoiseVolume);
@@ -44,24 +38,35 @@ export function AmbientOverlay() {
   const reset = useTimerStore((s) => s.reset);
   const skip = useTimerStore((s) => s.skip);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartRef.current - e.changedTouches[0].clientX;
+    if (diff > 100) {
+      setAmbientTheme('none');
+    }
+  };
+
   if (ambientTheme === 'none') return null;
 
   const Scene = scenes[ambientTheme];
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col" style={{ height: '100dvh', width: '100vw' }}>
+    <div
+      className="fixed inset-0 z-[60] flex flex-col"
+      style={{ height: '100dvh', width: '100vw' }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Full-screen canvas background */}
       <div className="absolute inset-0">
         <Scene active />
       </div>
 
-      {/* Top bar with close button */}
-      <div className="relative z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2">
-        <div className="flex items-center gap-2 mt-3">
-          <span className="text-white/80 text-sm font-medium" style={{ fontFamily: 'var(--font-heading)' }}>
-            {sceneLabels[ambientTheme]}
-          </span>
-        </div>
+      {/* Top bar with close button on LEFT */}
+      <div className="relative z-10 flex items-center justify-start px-4 pt-[env(safe-area-inset-top,12px)] pb-2">
         <button
           onClick={() => setAmbientTheme('none')}
           className={cn(
@@ -145,10 +150,6 @@ export function AmbientOverlay() {
           </div>
         )}
 
-        {/* Tap to close hint */}
-        <p className="text-center text-white/40 text-xs mb-4">
-          Tap Close or swipe to return
-        </p>
       </div>
     </div>
   );
