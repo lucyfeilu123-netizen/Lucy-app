@@ -15,6 +15,7 @@ import { useUIStore } from '@/stores/ui-store';
 import { useTimerStore } from '@/stores/timer-store';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { AmbientPicker } from '@/components/ambient/ambient-picker';
+import { LanguagePicker } from '@/components/theme/language-picker';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Badge } from '@/components/ui/badge';
 import { ListCreator } from '@/components/lists/list-creator';
@@ -217,6 +218,7 @@ export function Sidebar() {
         <div className="border-t border-[var(--border)] p-2 space-y-1">
           <AmbientPicker />
           <ThemeToggle />
+          <LanguagePicker />
           <UserMenu />
         </div>
         <ListCreator open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
