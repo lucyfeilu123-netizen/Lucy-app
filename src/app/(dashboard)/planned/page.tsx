@@ -22,7 +22,7 @@ export default function PlannedPage() {
         icon={<CalendarCheck size={24} className="text-[var(--kuja-350)]" />}
       />
       <TaskSortBar />
-      <TaskInput />
+      <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
       <TaskList tasks={filteredTasks} emptyMessage="No planned tasks" />
     </div>
   );

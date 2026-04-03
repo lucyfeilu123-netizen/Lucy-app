@@ -22,7 +22,7 @@ export default function Next7DaysPage() {
         icon={<Calendar size={24} className="text-[var(--hydra-350)]" />}
       />
       <TaskSortBar />
-      <TaskInput />
+      <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
       <TaskList tasks={filteredTasks} emptyMessage="No tasks in the next 7 days" />
     </div>
   );

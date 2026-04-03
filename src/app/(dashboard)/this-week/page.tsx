@@ -22,7 +22,7 @@ export default function ThisWeekPage() {
         icon={<CalendarRange size={24} className="text-[var(--limsa-350)]" />}
       />
       <TaskSortBar />
-      <TaskInput />
+      <TaskInput dueDate={new Date().toISOString().split('T')[0]} />
       <TaskList tasks={filteredTasks} emptyMessage="No tasks this week" />
     </div>
   );

@@ -9,10 +9,11 @@ import { cn } from '@/lib/utils';
 interface TaskInputProps {
   listId?: string | null;
   dueDate?: string | null;
+  flagged?: boolean;
   className?: string;
 }
 
-export function TaskInput({ listId, dueDate, className }: TaskInputProps) {
+export function TaskInput({ listId, dueDate, flagged, className }: TaskInputProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const addTask = useTaskStore((s) => s.addTask);
@@ -20,7 +21,12 @@ export function TaskInput({ listId, dueDate, className }: TaskInputProps) {
 
   const createTask = () => {
     if (!text.trim()) return;
-    addTask({ text: text.trim(), listId: listId || null, dueDate: dueDate || null });
+    addTask({
+      text: text.trim(),
+      listId: listId || null,
+      dueDate: dueDate || null,
+      flagged: flagged || false,
+    });
     setText('');
     inputRef.current?.focus();
   };

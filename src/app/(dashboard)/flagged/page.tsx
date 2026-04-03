@@ -22,7 +22,7 @@ export default function FlaggedPage() {
         icon={<Star size={24} className="text-[var(--costa-350)]" />}
       />
       <TaskSortBar />
-      <TaskInput />
+      <TaskInput flagged />
       <TaskList
         tasks={filteredTasks}
         emptyMessage="No flagged tasks"
