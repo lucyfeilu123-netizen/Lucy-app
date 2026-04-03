@@ -240,7 +240,7 @@ body {
   background: var(--fg-quieter);
 }
 
-/* PWA / Mobile app feel */
+/* PWA / Mobile app feel — lock viewport like a native app */
 html, body {
   overflow: hidden;
   height: 100dvh;
@@ -248,6 +248,26 @@ html, body {
   width: 100%;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent pinch-to-zoom and double-tap zoom on all elements */
+* {
+  touch-action: pan-x pan-y;
+}
+
+/* Allow normal touch scrolling inside scrollable containers */
+[class*="overflow-y-auto"],
+[class*="overflow-x-auto"],
+[class*="overflow-auto"] {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent iOS double-tap zoom on interactive elements */
+button, a, input, select, textarea, [role="button"] {
+  touch-action: manipulation;
 }
 
 /* Hide Safari UI elements */
