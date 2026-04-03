@@ -47,6 +47,7 @@ export function isTomorrow(dateStr: string | null): boolean {
 export function isThisWeek(dateStr: string | null): boolean {
   if (!dateStr) return false;
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
   endOfWeek.setHours(23, 59, 59, 999);
