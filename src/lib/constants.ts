@@ -12,7 +12,7 @@ export const DEFAULT_TIMER_SETTINGS: TimerSettings = {
   autoStartBreak: false,
   autoStartWork: false,
   disableBreak: false,
-  ringtone: 'default',
+  ringtone: 'gentle-bells',
 };
 
 export const TIMER_PRESETS: TimerPreset[] = [
