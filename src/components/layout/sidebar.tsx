@@ -114,9 +114,7 @@ export function Sidebar() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-[var(--accent)] flex items-center justify-center">
-              <Timer size={14} className="text-white" />
-            </div>
+            <img src="/icon-192.png" alt="Pomodoro" className="h-7 w-7 rounded-lg" />
             <span className="font-semibold text-[var(--fg)]" style={{ fontFamily: 'var(--font-heading)' }}>
               Pomodoro
             </span>
