@@ -28,6 +28,38 @@ function isSameDay(dateStr: string | null, year: number, month: number, day: num
   return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
 }
 
+// Check if a recurring event should appear on a given date
+function recurringMatchesDay(event: { dueDate: string | null; eventStartTime: string | null; recurring: string | null }, year: number, month: number, day: number): boolean {
+  if (!event.recurring) return false;
+
+  // Get the event's original date
+  let originDate: Date;
+  if (event.eventStartTime) {
+    originDate = new Date(event.eventStartTime);
+  } else if (event.dueDate) {
+    originDate = new Date(event.dueDate + 'T00:00:00');
+  } else {
+    return false;
+  }
+
+  const targetDate = new Date(year, month, day);
+  // Only show on or after the original date
+  if (targetDate < new Date(originDate.getFullYear(), originDate.getMonth(), originDate.getDate())) return false;
+  // Don't match the original day (that's handled by the normal check)
+  if (targetDate.getTime() === new Date(originDate.getFullYear(), originDate.getMonth(), originDate.getDate()).getTime()) return false;
+
+  switch (event.recurring) {
+    case 'daily':
+      return true; // Every day after the original
+    case 'weekly':
+      return targetDate.getDay() === originDate.getDay();
+    case 'monthly':
+      return targetDate.getDate() === originDate.getDate();
+    default:
+      return false;
+  }
+}
+
 // Color palette for event bars
 const eventColors = [
   'var(--accent)', 'var(--positive)', 'var(--warning)',
@@ -52,32 +84,62 @@ export default function EventsPage() {
     [tasks]
   );
 
-  // Check if a day has events
+  // Check if a day has events (including recurring)
   const dayHasEvents = (day: number) => {
     return events.some(e => {
-      if (e.eventStartTime) {
-        return isSameDay(e.eventStartTime, viewYear, viewMonth, day);
-      }
+      // Direct match
+      if (e.eventStartTime && isSameDay(e.eventStartTime, viewYear, viewMonth, day)) return true;
       if (e.dueDate) {
         const d = new Date(e.dueDate + 'T00:00:00');
-        return d.getFullYear() === viewYear && d.getMonth() === viewMonth && d.getDate() === day;
+        if (d.getFullYear() === viewYear && d.getMonth() === viewMonth && d.getDate() === day) return true;
       }
+      // Recurring match
+      if (recurringMatchesDay(e, viewYear, viewMonth, day)) return true;
       return false;
     });
   };
 
-  // Get events for selected day
+  // Get events for selected day (including recurring instances)
   const selectedDateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
   const dayEvents = useMemo(() => {
-    return events.filter(e => {
-      if (e.eventStartTime) {
-        return isSameDay(e.eventStartTime, viewYear, viewMonth, selectedDay);
+    const result: typeof events = [];
+
+    for (const e of events) {
+      // Direct match
+      const directMatch =
+        (e.eventStartTime && isSameDay(e.eventStartTime, viewYear, viewMonth, selectedDay)) ||
+        (!e.eventStartTime && e.dueDate === selectedDateStr);
+
+      if (directMatch) {
+        result.push(e);
+        continue;
       }
-      if (e.dueDate) {
-        return e.dueDate === selectedDateStr;
+
+      // Recurring match — create a virtual instance with adjusted times
+      if (recurringMatchesDay(e, viewYear, viewMonth, selectedDay)) {
+        let adjustedStart = e.eventStartTime;
+        let adjustedEnd = e.eventEndTime;
+
+        if (e.eventStartTime) {
+          const origStart = new Date(e.eventStartTime);
+          const timeOfDay = `${String(origStart.getHours()).padStart(2, '0')}:${String(origStart.getMinutes()).padStart(2, '0')}`;
+          adjustedStart = `${selectedDateStr}T${timeOfDay}`;
+        }
+        if (e.eventEndTime) {
+          const origEnd = new Date(e.eventEndTime);
+          const timeOfDay = `${String(origEnd.getHours()).padStart(2, '0')}:${String(origEnd.getMinutes()).padStart(2, '0')}`;
+          adjustedEnd = `${selectedDateStr}T${timeOfDay}`;
+        }
+
+        result.push({
+          ...e,
+          eventStartTime: adjustedStart,
+          eventEndTime: adjustedEnd,
+        });
       }
-      return false;
-    }).sort((a, b) => {
+    }
+
+    return result.sort((a, b) => {
       const aTime = a.eventStartTime || '0';
       const bTime = b.eventStartTime || '0';
       return aTime.localeCompare(bTime);
